@@ -46,7 +46,7 @@ class PhraseDetection(object):
         self.scoring = scoring
         self.wordNumInPhrase = wordNumInPhrase
 
-    def fit(self, sentencesPath, wordNumInPhrase):
+    def fit(self, sentencesPath):
         for path in self.savePhraserPaths:
             phrase = Phrases(sentences=TxtIter(sentences=LineSentence(sentencesPath), ngrams=self.ngrams),
                              min_count=self.min_count, hreshold=self.threshold, max_vocab_size=self.max_vocab_size,
