@@ -61,13 +61,19 @@ class DST(object):
         for j in range(i + 1, len(self.steps)):
             self.stepStatus[self.steps[j]] = "RUN"
 
-    def __init__(self, filePaths=None,
+    def __init__(self,
+                 domain_specific_corpus_path,
+                 general_corpus_path,
+                 filePaths=None,
                  phrase_detection_domain="default",
                  phrase_detection_general="default",
                  domain_specific_term="default",
                  semantic_related_words="default",
                  word_classification="default",
                  synonym_group="default"):
+
+        self.domain_specific_corpus_path = domain_specific_corpus_path
+        self.general_corpus_path = general_corpus_path
         self.filePaths = filePaths
         self.__getFilePaths()  # get all file paths
         self.__steps()  # make sure which steps shoule be run
@@ -120,14 +126,14 @@ class DST(object):
         else:
             self.SynonymGroup = synonym_group
 
-    def extract(self, domain_specific_corpus_path, general_corpus_path):
+    def extract(self):
         # phrase detection for domain specific corpus
-        self.PhraseDetectionDomain.fit(sentencesPath=domain_specific_corpus_path)
-        self.PhraseDetectionDomain.transform(sentencesPath=domain_specific_corpus_path,
+        self.PhraseDetectionDomain.fit(sentencesPath=self.domain_specific_corpus_path)
+        self.PhraseDetectionDomain.transform(sentencesPath=self.domain_specific_corpus_path,
                                              savePath=self.filePaths["domain_corpus_phrase"])
         # phrase detection for general corpus
-        self.PhraseDetectionGeneral.fit(sentencesPath=general_corpus_path)
-        self.PhraseDetectionGeneral.transform(sentencesPath=general_corpus_path,
+        self.PhraseDetectionGeneral.fit(sentencesPath=self.general_corpus_path)
+        self.PhraseDetectionGeneral.transform(sentencesPath=self.general_corpus_path,
                                               savePath=self.filePaths["general_corpus_phrase"])
 
         # extract domain specific term
@@ -164,16 +170,5 @@ class DST(object):
         with codecs.open(self.filePaths["final_thesaurus"], mode="w", encoding="utf-8") as fw:
             fw.write(json.dumps(final_thesaurus))
 
-
-class cc:
-    def __init__(self):
-        self.cccc()
-        print(123)
-        self.cccc()
-
-    def cccc(self):
-        print(456)
-
-
 if __name__ == "__main__":
-    c = cc()
+    pass
