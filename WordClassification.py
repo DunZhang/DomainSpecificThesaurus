@@ -5,7 +5,8 @@ from collections import defaultdict
 import jellyfish
 import re
 
-def numberInString(term):
+
+def __numberInString(term):
     for i in term:
         if i.isdigit():
             return True
@@ -13,9 +14,9 @@ def numberInString(term):
 
 
 # check if the number in two string are the same
-def isNumberSame(term1, term2):
+def __isNumberSame(term1, term2):
     # if one term has number inside, the other one should have the same number
-    if numberInString(term1) or numberInString(term2):
+    if __numberInString(term1) or __numberInString(term2):
         if re.findall(r"\d+", term1) != re.findall(r"\d+",
                                                    term2):  # if the number lists are different, they are not abbreviation relationships
             return False
@@ -23,7 +24,7 @@ def isNumberSame(term1, term2):
 
 
 # check if the letter order of two terms are the same
-def checkLetterOrder(shortTerm, longTerm):
+def __checkLetterOrder(shortTerm, longTerm):
     position = 0  # record the position of letter
     matchCount = 0  # how many letters in the short term are ordered as those in long term
     # do not take "-" and "_" into consideration
@@ -48,7 +49,7 @@ def checkLetterOrder(shortTerm, longTerm):
 
 
 # check if one term is an abbreviation of the other
-def isAbrreviation(longTerm, shortTerm):
+def __isAbrreviation(longTerm, shortTerm):
     """
     判断term2是否是term1的key
     """
@@ -66,7 +67,7 @@ def isAbrreviation(longTerm, shortTerm):
         return False
 
     # the length of the abbreviation should not be so long compared to its postential full name
-    if float(len(shortTerm)) / len(longTerm) > 0.68 and not numberInString(
+    if float(len(shortTerm)) / len(longTerm) > 0.68 and not __numberInString(
             shortTerm):  # the parameter is determined by observation
         return False
 
@@ -98,13 +99,13 @@ def isAbrreviation(longTerm, shortTerm):
                 break
 
     # check if number in terms are the same
-    if numberInString(longTerm) or numberInString(shortTerm):
-        if not isNumberSame(longTerm, shortTerm):
+    if __numberInString(longTerm) or __numberInString(shortTerm):
+        if not __isNumberSame(longTerm, shortTerm):
             return False
 
     # check if the letter order is the same
     try:
-        if checkLetterOrder(shortTerm, longTerm):
+        if __checkLetterOrder(shortTerm, longTerm):
             if shortTerm.replace(" ", "") in longTerm.replace(" ",
                                                               ""):  # if shortTerm in a consecutive part of long term, it is not an abbreviation
                 return False
@@ -118,7 +119,7 @@ def isAbrreviation(longTerm, shortTerm):
 
 
 # check if two terms are synonyms
-def isSynonym(term1, term2):
+def __isSynonym(term1, term2):
     try:
         term1.encode(encoding="ascii")
         term2.encode(encoding="ascii")
@@ -127,9 +128,8 @@ def isSynonym(term1, term2):
 
     if term1 == term2 or term1.replace(" ", "") == term2.replace(" ", ""):
         return True
-
     # the numbers inside them should be the same
-    if not isNumberSame(term1, term2):
+    if not __isNumberSame(term1, term2):
         #        print("AA")
         return False
 
@@ -163,30 +163,29 @@ def isSynonym(term1, term2):
     else:
         return False
 
-def default_classify_func(term1,term2):
-    if isSynonym(term1,term2):
+
+def default_classify_func(term1, term2):
+    if __isSynonym(term1, term2):
         return "synonym"
-    elif isAbrreviation(term1,term2):
+    elif __isAbrreviation(term1, term2):
         return "abbreviation"
     else:
         return "other"
 
-class WordClassification(object):
-    def __init__(self):
-        pass
 
-    def classifyWords(self, classify_func=default_classify_func, synonymTypes=["synonym", "abbreviation", "other"], vocab=None):
+class WordClassification(object):
+    def __init__(self,classify_word_func,synonym_types):
+        self.classify_word_func = classify_word_func
+        self.synonym_types = synonym_types
+
+    def classifyWords(self, vocab):
         res = {}
         for k, v in vocab.items():
             res[k] = {}
-            for i in synonymTypes:
+            for i in self.synonym_types:
                 res[k][i] = []
             for i in v:
-                res[k][classify_func(k, i)].append(i)
+                res[k][self.classify_word_func(k, i)].append(i)
         return res
-
-
-print(jellyfish.levenshtein_distance(u"123", u"12s4"),jellyfish.damerau_levenshtein_distance("",""))
-print(type("123"))
 if __name__ == "__main__":
     print(123)

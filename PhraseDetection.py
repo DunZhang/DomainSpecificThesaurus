@@ -5,16 +5,8 @@ just simplely package existing algorithms
 import codecs
 from gensim.models.phrases import Phrases, Phraser
 from gensim.models.word2vec import LineSentence
-def toPhrase(savePath,sentencesPath,ngrams):
-    with codecs.open(savePath, mode="w", encoding="utf-8") as fr:
-        sentences = TxtIter(sentences=LineSentence(sentencesPath), ngrams=ngrams)
-        lines = []
-        for line in sentences:
-            lines.append(line + "\n")
-            if len(lines) > 500000:
-                fr.writelines(lines)
-                lines = []
-        fr.writelines(lines)
+
+
 class TxtIter(object):
     """
     step1.2.2短语迭代器，bigram若为None，就是不经处理直接迭代
@@ -43,29 +35,35 @@ class PhraseDetection(object):
     
     """
 
-    def __init__(self,sentences=None):
-        self.sentences = sentences
+    def __init__(self, savePhraserPaths, min_count=10, threshold=15.0,
+                 max_vocab_size=40000000, delimiter=b'_', scoring='default', wordNumInPhrase=3):
         self.ngrams = []
+        self.savePhraserPaths = savePhraserPaths
+        self.min_count = min_count
+        self.threshold = threshold
+        self.max_vocab_size = max_vocab_size
+        self.delimiter = delimiter
+        self.scoring = scoring
+        self.wordNumInPhrase = wordNumInPhrase
 
-    def fit(self, savePhraserPaths=None, sentencesPath=None, min_count=10, threshold=15.0,
-            max_vocab_size=40000000, delimiter=b'_', scoring='default'):
-        for path in savePhraserPaths:
+    def fit(self, sentencesPath, wordNumInPhrase):
+        for path in self.savePhraserPaths:
             phrase = Phrases(sentences=TxtIter(sentences=LineSentence(sentencesPath), ngrams=self.ngrams),
-                             min_count=min_count,
-                             threshold=threshold, max_vocab_size=max_vocab_size, delimiter=delimiter, scoring=scoring)
+                             min_count=self.min_count, hreshold=self.threshold, max_vocab_size=self.max_vocab_size,
+                             delimiter=self.delimiter, scoring=self.scoring)
             phrase.save(path)
             phraser = Phraser(phrase)
             self.ngrams.append(phraser)
 
-    def transform(self,savePath,sentencesPath):
-        with codecs.open(savePath,mode="w",encoding="utf-8") as fr:
+    def transform(self, sentencesPath, savePath):
+        with codecs.open(savePath, mode="w", encoding="utf-8") as fr:
             sentences = TxtIter(sentences=LineSentence(sentencesPath), ngrams=self.ngrams)
-            lines=[]
+            lines = []
             for line in sentences:
-                lines.append(line+"\n")
-                if len(lines)>500000:
+                lines.append(line + "\n")
+                if len(lines) > 500000:
                     fr.writelines(lines)
-                    lines=[]
+                    lines = []
             fr.writelines(lines)
 
 
