@@ -1,4 +1,4 @@
-"""
+ """
 to create a domain specific thesaurus by using our approach
 the input are domain corpus and gengeral corpus and the output is domain specific thesaurus(dst)
 """
