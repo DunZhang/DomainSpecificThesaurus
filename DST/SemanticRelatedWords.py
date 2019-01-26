@@ -2,6 +2,9 @@
 class to get semantic related words for terms
 """
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 from gensim.models import Word2Vec, FastText
 from gensim.models.word2vec import LineSentence
 
@@ -24,24 +27,32 @@ class SemanticRelatedWords(object):
 
     def getSemanticRelatedWords(self, terms):
         # get fasttext and skipgram models
-        if self.fasttext is None or self.skipgram is None:
-            if os.path.exists(self.fasttext_path) and os.path.exists(self.skipgram_path):  # exist, just load
+        if self.fasttext is None:
+            if os.path.exists(self.fasttext_path):  # exist, just load
+                logger.warning(self.fasttext_path + " already exists, program will load it.")
                 self.fasttext = FastText.load(self.fasttext_path)
+            else:  # train
+                logger.info("train fasttext")
+                FastText_model = FastText(sentences=LineSentence(self.domain_corpus_phrase_path),
+                                          min_count=self.min_count, size=self.size, sg=1, workers=self.workers,
+                                          window=self.window)
+                logger.info("save fasttext to local")
+                FastText_model.save(self.fasttext_path)
+
+        if self.skipgram is None:
+            if os.path.exists(self.skipgram_path):  # exist, just load
+                logger.warning(self.skipgram_path + " already exists, program will load it.")
                 self.skipgram = Word2Vec.load(self.skipgram_path)
             else:  # not exist, need to train
-                # train skip-gram
+                logger.info("train skipgram")
                 skipgram_model = Word2Vec(
                     sentences=LineSentence(self.domain_corpus_phrase_path),
                     min_count=self.min_count, size=self.size, sg=1, workers=self.workers, window=self.window)
                 skipgram_model.delete_temporary_training_data(True)
+                logger.info("save skipgram to local")
                 skipgram_model.save(self.skipgram_path)
-                # train fasttext
-                FastText_model = FastText(sentences=LineSentence(self.domain_corpus_phrase_path),
-                                          min_count=self.min_count, size=self.size, sg=1, workers=self.workers,
-                                          window=self.window)
-                FastText_model.save(self.fasttext_path)
-
         # get semantic related words
+        logger.info("get semantic related words")
         res = {}
         for term in terms:
             res[term] = list(set([i[0] for i in self.fasttext.wv.most_similar(term, topn=self.topn_fasttext)] + \
