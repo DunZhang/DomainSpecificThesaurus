@@ -8,13 +8,13 @@ import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-import os, sys
+import os
 from collections import defaultdict
-from PhraseDetection import PhraseDetection
-from DomainSpecificTerm import DomainSpecificTerm
-from SemanticRelatedWords import SemanticRelatedWords
-from WordClassification import WordClassification, default_classify_func
-from SynonymGroup import SynonymGroup, default_get_new_key
+from DST.PhraseDetection import PhraseDetection
+from DST.DomainSpecificTerm import DomainSpecificTerm
+from DST.SemanticRelatedWords import SemanticRelatedWords
+from DST.WordClassification import WordClassification, default_classify_func
+from DST.SynonymGroup import SynonymGroup, default_get_new_key
 
 
 def corpusToVocab(sentences):
@@ -29,6 +29,7 @@ class DST(object):
     def __init__(self,
                  domain_specific_corpus_path,
                  general_corpus_path,
+                 outputDir=None,
                  filePaths=None,
                  phrase_detection_domain="default",
                  phrase_detection_general="default",
@@ -39,6 +40,7 @@ class DST(object):
 
         self.domain_specific_corpus_path = domain_specific_corpus_path
         self.general_corpus_path = general_corpus_path
+        self.outputDir = outputDir
         self.filePaths = filePaths
         self.domain_vocab, self.general_vocab = None, None
         self.domain_terms = None
@@ -113,7 +115,8 @@ class DST(object):
     def __getFilePaths(self):
         # ouputDir is a directory that contain many temp file and final thesaurus in the process of extracting thesaurus
         if self.filePaths is None:  # use default setting
-            self.outputDir = os.path.dirname(__file__)
+            if self.outputDir is None:
+                self.outputDir = os.path.dirname(__file__)
             self.filePaths = {}
             self.filePaths["domain_corpus_phrase"] = os.path.join(self.outputDir, "domain_corpus_phrase.txt")
             self.filePaths["general_corpus_phrase"] = os.path.join(self.outputDir, "general_corpus_phrase.txt")

@@ -44,7 +44,7 @@ class CleanDataSO(object):
         for _, elem in context:  # 迭代每一个
             c += 1
             if (c % 100000 == 0):
-                logger.info("already clean record:", str(c / 10000) + "W")
+                logger.info("already clean record:" + str(c / 10000) + "W")
             title, body, typeId = elem.get("Title"), elem.get("Body"), elem.get("PostTypeId")
             elem.clear()
             if typeId is None:
@@ -129,11 +129,13 @@ class CleanDataWiki(object):
         c = 0
         for _, elem in context:
             tag, content = elem.tag, elem.text
-            if tag is None or context is None or tag != "text" or len(context) < 200:
+            elem.clear()
+            # print(elem)
+            if tag is None or content is None or str(tag)[-4:] != "text" or len(content) < 200:
                 continue
             c += 1
-            if c % 100000 == 0:
-                logger.info("already clean passages:", str(c / 10000) + "W")
+            if c % 10000 == 0:
+                logger.info("already clean passages:" + str(c / 10000) + "W")
             clean_data.extend(self.__clean_data(content=content))
             if len(clean_data) > 100000:  # write to local
                 fw.writelines(clean_data)
@@ -158,7 +160,7 @@ def cleanMathXml(xmlPath="../data/Posts.xml", savePath="../result/cleanMath.txt"
     for _, elem in context:  # 迭代每一个
         c += 1
         if (c % 50000 == 0):
-            logger.info("already pasrse record:", str(c / 10000) + "W")
+            logger.info("already pasrse record:" + str(c / 10000) + "W")
         title, body, typeId = elem.get("Title"), elem.get("Body"), elem.get("PostTypeId")
         elem.clear()
         if (typeId is None):
@@ -176,7 +178,7 @@ def cleanMathXml(xmlPath="../data/Posts.xml", savePath="../result/cleanMath.txt"
         if (title is not None):
             datas.append(BeautifulSoup(title, "lxml").get_text())
         # 开始处理获取的数据
-    print("开始清洗数据")
+    logger.info("start to clean data")
     fw = codecs.open(savePath, "w", encoding="utf-8")
     for strText in datas:
         strText = strText.lower()
