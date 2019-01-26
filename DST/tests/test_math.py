@@ -2,9 +2,8 @@
 test math
 """
 import pytest
-from DST.DST import DST
-from DST.CleanData import cleanMathXml
-from DST.CleanData import CleanDataWiki
+from DST.datasets.CleanData import cleanMathXml
+from DST.datasets.CleanData import CleanDataWiki
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -15,7 +14,7 @@ if __name__ == "__main__":
         cwiki = CleanDataWiki(wiki_data_path="D:\\Codes\\PythonProj\\MathDict\\data\\enwiki-latest-pages-articles.xml",
                               clean_data_path="E:/testMath/clean_wiki.txt")
         cwiki.tranform()
-    # dst = DST(domain_specific_corpus_path="E:/testMath/clean_math.txt",
+    # dst = DomainThesaurus(domain_specific_corpus_path="E:/testMath/clean_math.txt",
     #           general_corpus_path="",
     #           outputDir="E:/testMath",
     #           filePaths=None,

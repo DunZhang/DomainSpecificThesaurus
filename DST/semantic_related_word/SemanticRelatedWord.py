@@ -9,7 +9,7 @@ from gensim.models import Word2Vec, FastText
 from gensim.models.word2vec import LineSentence
 
 
-class SemanticRelatedWords(object):
+class SemanticRelatedWord(object):
     def __init__(self, domain_corpus_phrase_path, fasttext_path, skipgram_path, fasttext=None, skipgram=None,
                  topn_fasttext=8, topn_skipgram=15, min_count=5, size=200, workers=8, window=5
                  ):

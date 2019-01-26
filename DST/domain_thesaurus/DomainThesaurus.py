@@ -10,22 +10,15 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 import os
 from collections import defaultdict
-from DST.PhraseDetection import PhraseDetection
-from DST.DomainSpecificTerm import DomainSpecificTerm
-from DST.SemanticRelatedWords import SemanticRelatedWords
-from DST.WordClassification import WordClassification, default_classify_func
-from DST.SynonymGroup import SynonymGroup, default_get_new_key
+from DST.phrase_detection.PhraseDetection import PhraseDetection
+from DST.domain_term.DomainTerm import DomainTerm
+from DST.semantic_related_word.SemanticRelatedWord import SemanticRelatedWord
+from DST.word_classification.WordClassification import WordClassification, default_classify_func
+from DST.synonym_group.SynonymGroup import SynonymGroup, default_get_new_key
+from DST.utils.VocabUtil import corpusToVocab
 
 
-def corpusToVocab(sentences):
-    vocab = defaultdict(int)
-    for line in sentences:
-        for word in line.split():
-            vocab[word] += 1
-    return vocab
-
-
-class DST(object):
+class DomainThesaurus(object):
     def __init__(self,
                  domain_specific_corpus_path,
                  general_corpus_path,
@@ -48,7 +41,7 @@ class DST(object):
         self.origin_thesaurus = None
         self.final_thesaurus = None
         self.__getFilePaths()  # get all file paths
-        # some models in DST
+        # some models in DomainThesaurus
         if phrase_detection_domain == "default":
             self.PhraseDetectionDomain = PhraseDetection(savePhraserPaths="", min_count=10, threshold=15.0,
                                                          max_vocab_size=40000000, delimiter=b'_', scoring='default',
@@ -74,17 +67,17 @@ class DST(object):
             self.PhraseDetectionGeneral = phrase_detection_general
 
         if domain_specific_term == "default":
-            self.DomainSpecificTerm = DomainSpecificTerm(maxTermsCount=300000, thresholdScore=10.0,
-                                                         termFreqRange=(30, float("inf")))
+            self.DomainSpecificTerm = DomainTerm(maxTermsCount=300000, thresholdScore=10.0,
+                                                 termFreqRange=(30, float("inf")))
         else:
             self.DomainSpecificTerm = domain_specific_term
         if semantic_related_words == "default":
-            self.SemanticRelatedWords = SemanticRelatedWords(self.filePaths["domain_corpus_phrase"],
-                                                             self.filePaths["fasttext"], self.filePaths["skipgram"],
-                                                             fasttext=None, skipgram=None,
-                                                             topn_fasttext=8, topn_skipgram=15, min_count=5, size=200,
-                                                             workers=8, window=5
-                                                             )
+            self.SemanticRelatedWords = SemanticRelatedWord(self.filePaths["domain_corpus_phrase"],
+                                                            self.filePaths["fasttext"], self.filePaths["skipgram"],
+                                                            fasttext=None, skipgram=None,
+                                                            topn_fasttext=8, topn_skipgram=15, min_count=5, size=200,
+                                                            workers=8, window=5
+                                                            )
         else:
             self.SemanticRelatedWords = semantic_related_words
         if word_classification == "default":
@@ -128,9 +121,6 @@ class DST(object):
             self.filePaths["semantic_related_words"] = os.path.join(self.outputDir, "semantic_related_words.json")
             self.filePaths["origin_thesaurus"] = os.path.join(self.outputDir, "origin_thesaurus.json")
             self.filePaths["final_thesaurus"] = os.path.join(self.outputDir, "final_thesaurus.json")
-            self.steps = ["domain_corpus_phrase", "general_corpus_phrase", "domain_vocab", "general_vocab",
-                          "domain_terms", "fasttext", "skipgram", "semantic_related_words", "origin_thesaurus",
-                          "final_thesaurus"]
 
     def __phraseDetection(self):
         if not os.path.exists(self.filePaths["domain_corpus_phrase"]):

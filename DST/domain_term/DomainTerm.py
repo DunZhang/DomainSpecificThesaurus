@@ -6,7 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class DomainSpecificTerm(object):
+class DomainTerm(object):
     def __init__(self, maxTermsCount=300000, thresholdScore=10.0, termFreqRange=(30, float("inf"))):
         self.maxTermsCount = maxTermsCount
         self.thresholdScore = thresholdScore
