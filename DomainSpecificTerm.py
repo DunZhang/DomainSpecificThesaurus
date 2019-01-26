@@ -1,6 +1,9 @@
 """
 class to extrace domain-specific terms
 """
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class DomainSpecificTerm(object):
@@ -29,6 +32,7 @@ class DomainSpecificTerm(object):
                     candidateTerms.append((word, score))
         candidateTerms.sort(key=lambda x: x[1], reverse=True)
         terms = candidateTerms[0:self.maxTermsCount]
+        logging.info("extract %d terms in total" % len(terms))
         return terms
 
 

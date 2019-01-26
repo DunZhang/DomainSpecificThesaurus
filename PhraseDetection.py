@@ -3,6 +3,10 @@ class to detect phrase
 just simplely package existing algorithms
 """
 import codecs
+import gc
+import logging
+
+logger = logging.getLogger(__name__)
 from gensim.models.phrases import Phrases, Phraser
 from gensim.models.word2vec import LineSentence
 
@@ -47,13 +51,17 @@ class PhraseDetection(object):
         self.wordNumInPhrase = wordNumInPhrase
 
     def fit(self, sentencesPath):
+        c = 2
         for path in self.savePhraserPaths:
+            logging.info("get %d-gram phrase" % c)
+            c += 1
             phrase = Phrases(sentences=TxtIter(sentences=LineSentence(sentencesPath), ngrams=self.ngrams),
                              min_count=self.min_count, hreshold=self.threshold, max_vocab_size=self.max_vocab_size,
                              delimiter=self.delimiter, scoring=self.scoring)
             phrase.save(path)
             phraser = Phraser(phrase)
             self.ngrams.append(phraser)
+            del phrase
 
     def transform(self, sentencesPath, savePath):
         with codecs.open(savePath, mode="w", encoding="utf-8") as fr:
@@ -65,6 +73,10 @@ class PhraseDetection(object):
                     fr.writelines(lines)
                     lines = []
             fr.writelines(lines)
+        logger.info("delete all phraser")
+        for i in self.ngrams:
+            del i
+        gc.collect()
 
 
 if __name__ == "__main__":
