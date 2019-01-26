@@ -75,6 +75,8 @@ class DST(object):
         self.domain_specific_corpus_path = domain_specific_corpus_path
         self.general_corpus_path = general_corpus_path
         self.filePaths = filePaths
+        self.domain_vocab, self.general_vocab = None, None
+        self.domain_terms = None
         self.__getFilePaths()  # get all file paths
         self.__steps()  # make sure which steps shoule be run
         # some models in DST
@@ -126,49 +128,91 @@ class DST(object):
         else:
             self.SynonymGroup = synonym_group
 
+    def __phraseDetection(self):
+        if not os.path.exists(self.filePaths["domain_corpus_phrase"]):
+            self.PhraseDetectionDomain.fit(sentencesPath=self.domain_specific_corpus_path)
+            self.PhraseDetectionDomain.transform(sentencesPath=self.domain_specific_corpus_path,
+                                                 savePath=self.filePaths["domain_corpus_phrase"])
+        if not os.path.exists(self.filePaths["general_corpus_phrase"]):
+            self.PhraseDetectionGeneral.fit(sentencesPath=self.general_corpus_path)
+            self.PhraseDetectionGeneral.transform(sentencesPath=self.general_corpus_path,
+                                                  savePath=self.filePaths["general_corpus_phrase"])
+
+    def __corpusVocab(self):
+        if not os.path.exists(self.filePaths["domain_vocab"]):
+            with codecs.open(self.filePaths["domain_corpus_phrase"], mode="r", encoding="utf-8") as fr:
+                self.domain_vocab = corpusToVocab(fr)
+                with codecs.open(self.filePaths["domain_vocab"], mode="w", encoding="utf-8") as fw:
+                    fw.write(json.dumps(self.domain_vocab))
+        else:
+            with codecs.open(self.filePaths["domain_vocab"], mode="r", encoding="utf-8") as fr:
+                self.domain_vocab = json.loads(fr.read())
+        if not os.path.exists(self.filePaths["general_vocab"]):
+            with codecs.open(self.filePaths["general_corpus_phrase"], mode="r", encoding="utf-8") as fr:
+                self.general_vocab = corpusToVocab(fr)
+                with codecs.open(self.filePaths["general_vocab"], mode="w", encoding="utf-8") as fw:
+                    fw.write(json.dumps(self.general_vocab))
+        else:
+            with codecs.open(self.filePaths["general_vocab"], mode="r", encoding="utf-8") as fr:
+                self.general_vocab = json.loads(fr.read())
+
+    def __domainTerm(self):
+        if not os.path.exists(self.filePaths["domain_terms"]):
+            self.domain_terms = self.DomainSpecificTerm.extract_term(domainSpecificVocab=self.domain_vocab,
+                                                                     generalVocab=self.general_vocab)
+            with codecs.open(self.filePaths["domain_terms"], mode="w", encoding="utf-8") as fw:
+                fw.writelines([term + "\n" for term in self.domain_terms])
+        else:
+            with codecs.open(self.filePaths["domain_terms"], mode="r", encoding="utf-8") as fr:
+                self.domain_terms = [line.strip() for line in fr.readlines()]
+
+    def __semanticRelatedWords(self):
+        if not os.path.exists(self.filePaths["semantic_related_words"]):
+            self.semantic_related_words = self.SemanticRelatedWords.getSemanticRelatedWords(terms=self.domain_terms)
+            # save semantic_related_words
+            with codecs.open(self.filePaths["semantic_related_words"], mode="w", encoding="utf-8") as fw:
+                fw.write(json.dumps(self.semantic_related_words))
+        else:
+            with codecs.open(self.filePaths["semantic_related_words"], mode="r", encoding="utf-8") as fr:
+                self.semantic_related_words = json.loads(fr.read())
+
+    def __classifyWords(self):
+        if not os.path.exists(self.filePaths["origin_thesaurus"]):
+            self.origin_thesaurus = self.WordClassification.classifyWords(vocab=self.semantic_related_words)
+            # save origin_thesaurus
+            with codecs.open(self.filePaths["origin_thesaurus"], mode="w", encoding="utf-8") as fw:
+                fw.write(json.dumps(self.origin_thesaurus))
+        else:
+            with codecs.open(self.filePaths["origin_thesaurus"], mode="r", encoding="utf-8") as fr:
+                self.origin_thesaurus = json.loads(fr.read())
+
+    def __groupSynonyms(self):
+        if not os.path.exists(self.filePaths["final_thesaurus"]):
+
+            self.final_thesaurus = self.SynonymGroup.group_synonyms(dst=self.origin_thesaurus)
+            with codecs.open(self.filePaths["final_thesaurus"], mode="w", encoding="utf-8") as fw:
+                fw.write(json.dumps(self.final_thesaurus))
+        else:
+            with codecs.open(self.filePaths["final_thesaurus"], mode="r", encoding="utf-8") as fr:
+                self.origin_thesaurus = json.loads(fr.read())
+
     def extract(self):
-        # phrase detection for domain specific corpus
-        self.PhraseDetectionDomain.fit(sentencesPath=self.domain_specific_corpus_path)
-        self.PhraseDetectionDomain.transform(sentencesPath=self.domain_specific_corpus_path,
-                                             savePath=self.filePaths["domain_corpus_phrase"])
-        # phrase detection for general corpus
-        self.PhraseDetectionGeneral.fit(sentencesPath=self.general_corpus_path)
-        self.PhraseDetectionGeneral.transform(sentencesPath=self.general_corpus_path,
-                                              savePath=self.filePaths["general_corpus_phrase"])
+        pass
+# phrase detection
 
-        # extract domain specific term
-        # get vocab for domain specific
-        with codecs.open(self.filePaths["domain_corpus_phrase"], mode="r", encoding="utf-8") as fr:
-            domain_vocab = corpusToVocab(fr)
-            with codecs.open(self.filePaths["domain_vocab"], mode="w", encoding="utf-8") as fw:
-                fw.write(json.dumps(domain_vocab))
+# extract domain specific term
+# get vocab
 
-            # get vocab for general
-        with codecs.open(self.filePaths["general_corpus_phrase"], mode="r", encoding="utf-8") as fr:
-            general_vocab = corpusToVocab(fr)
-            with codecs.open(self.filePaths["general_vocab"], mode="w", encoding="utf-8") as fw:
-                fw.write(json.dumps(general_vocab))
-        # get domain terms
-        domain_terms = self.DomainSpecificTerm.extract_term(domainSpecificVocab=domain_vocab,
-                                                            generalVocab=general_vocab)
-        # save domain terms
-        with codecs.open(self.filePaths["domain_terms"], mode="w", encoding="utf-8") as fw:
-            fw.writelines([term + "\n" for term in domain_terms])
+# get domain terms
 
-        # get semantic related words
-        semantic_related_words = self.SemanticRelatedWords.getSemanticRelatedWords(terms=domain_terms)
-        # save semantic_related_words
-        with codecs.open(self.filePaths["semantic_related_words"], mode="w", encoding="utf-8") as fw:
-            fw.write(json.dumps(semantic_related_words))
-        # classify words
-        origin_thesaurus = self.WordClassification.classifyWords(vocab=semantic_related_words)
-        # save origin_thesaurus
-        with codecs.open(self.filePaths["origin_thesaurus"], mode="w", encoding="utf-8") as fw:
-            fw.write(json.dumps(origin_thesaurus))
-        # froup synonyms and get final thesaurus
-        final_thesaurus = self.SynonymGroup.group_synonyms(dst=origin_thesaurus)
-        with codecs.open(self.filePaths["final_thesaurus"], mode="w", encoding="utf-8") as fw:
-            fw.write(json.dumps(final_thesaurus))
+# save domain terms
+
+# get semantic related words
+
+# classify words
+
+# group synonyms and get final thesaurus
+
 
 if __name__ == "__main__":
     pass
