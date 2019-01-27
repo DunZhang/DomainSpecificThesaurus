@@ -23,6 +23,6 @@ if __name__ == "__main__":
                           semantic_related_words="default",
                           word_classification="default",
                           synonym_group="default")
-    dst.extract()
+    # dst.extract()
     print(dst.filePaths)
     # print(os.path.join("E:/testEng","Phrases/2_domain"+str(2)+"_phrase.model"))

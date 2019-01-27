@@ -1,9 +1,8 @@
 """
 class to word classification
 """
-from collections import defaultdict
-import jellyfish
 import re
+from DST.utils.DSUtil import levenshtein_distance, StrSimilarity
 
 
 def __numberInString(term):
@@ -151,14 +150,13 @@ def __isSynonym(term1, term2):
         0] == ".":  # As term beginning with dot is always the file extension, it always is not the abbreviation
         return False
     try:
-        absoluteDis = jellyfish.damerau_levenshtein_distance(term1, term2)  # absolute edit distance
+        absoluteDis = levenshtein_distance(term1, term2)  # absolute edit distance
     except Exception as e:
         print(e, term1, term2)
         return False
-    relativeDis = 1.0 - (float(absoluteDis) / max(len(term1), len(
-        term2)))  # relative edit distance by diving the length of two terms23
-    #    print(absoluteDis ,relativeDis )
-    if absoluteDis < 4 and relativeDis > 0.7:  # set the absoluteDis for long term while relativeDis for short term
+    # relative edit distance by diving the length of two terms23
+    relativeDis = float(absoluteDis) / max((len(term1), len(term2)))
+    if absoluteDis < 4 and relativeDis <= 0.3:  # set the absoluteDis for long term while relativeDis for short term
         return True
     else:
         return False
@@ -174,7 +172,7 @@ def default_classify_func(term1, term2):
 
 
 class WordClassification(object):
-    def __init__(self,classify_word_func,synonym_types):
+    def __init__(self, classify_word_func, synonym_types):
         self.classify_word_func = classify_word_func
         self.synonym_types = synonym_types
 
@@ -187,5 +185,7 @@ class WordClassification(object):
             for i in v:
                 res[k][self.classify_word_func(k, i)].append(i)
         return res
+
+
 if __name__ == "__main__":
-    print(123)
+    pass

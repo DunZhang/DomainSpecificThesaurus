@@ -8,6 +8,7 @@ future optimizing：
 3. the information in logging-info should be more clear
 4. unit-test (pytest) should be added.
 5. use logger more reasonable
+6. DST.word_classification.WordClassification is not good
 """
 import codecs
 import json
@@ -16,8 +17,6 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 import os
-from collections import defaultdict
-from gensim.models.phrases import Phraser, Phrases
 from DST.phrase_detection.PhraseDetection import PhraseDetection
 from DST.domain_term.DomainTerm import DomainTerm
 from DST.semantic_related_word.SemanticRelatedWord import SemanticRelatedWord
@@ -216,7 +215,7 @@ class DomainThesaurus(object):
 
     def __groupSynonyms(self):
         if not os.path.exists(self.filePaths["final_thesaurus"]):
-            if isinstance(self.SynonymGroup, SynonymGroup):   # if use default synonym group class
+            if isinstance(self.SynonymGroup, SynonymGroup):  # if use default synonym group class
                 self.SynonymGroup.domain_vocab = self.domain_vocab
                 # logger.info(str(len(self.domain_vocab)))
             self.final_thesaurus = self.SynonymGroup.group_synonyms(dst=self.origin_thesaurus)
