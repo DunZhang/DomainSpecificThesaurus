@@ -1,6 +1,13 @@
 """
 to create a domain specific thesaurus by using our approach
 the input are domain corpus and gengeral corpus and the output is domain specific thesaurus(dst)
+
+future optimizing：
+1. some modules' function should be clear and vivid. May remove or add some functions.
+2. the program may re-read some data as input, but the output already exist, it wastes some time
+3. the information in logging-info should be more clear
+4. unit-test (pytest) should be added.
+5. use logger more reasonable
 """
 import codecs
 import json
@@ -10,11 +17,12 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 import os
 from collections import defaultdict
+from gensim.models.phrases import Phraser, Phrases
 from DST.phrase_detection.PhraseDetection import PhraseDetection
 from DST.domain_term.DomainTerm import DomainTerm
 from DST.semantic_related_word.SemanticRelatedWord import SemanticRelatedWord
 from DST.word_classification.WordClassification import WordClassification, default_classify_func
-from DST.synonym_group.SynonymGroup import SynonymGroup, default_get_new_key
+from DST.synonym_group.SynonymGroup import SynonymGroup
 from DST.utils.VocabUtil import corpusToVocab
 
 
@@ -43,40 +51,47 @@ class DomainThesaurus(object):
         self.__getFilePaths()  # get all file paths
         # some models in DomainThesaurus
         if phrase_detection_domain == "default":
-            self.PhraseDetectionDomain = PhraseDetection(savePhraserPaths="", min_count=10, threshold=15.0,
-                                                         max_vocab_size=40000000, delimiter=b'_', scoring='default',
-                                                         wordNumInPhrase=3)
+            wordNumInPhrase = 3
             savePhraserPaths = []
-            for i in range(self.PhraseDetectionDomain.wordNumInPhrase - 1):
-                savePhraserPaths.append(os.path.join(self.outputDir, "/Phrases/" + str(i + 2) + "_domain_phrase.model"))
-            self.PhraseDetectionDomain.savePhraserPaths = savePhraserPaths
-
+            phrasesDir = os.path.join(self.outputDir, "Phrases")
+            if not os.path.exists(phrasesDir):
+                os.makedirs(phrasesDir)
+            for i in range(wordNumInPhrase - 1):
+                savePhraserPaths.append(
+                    os.path.join(self.outputDir, "Phrases/" + str(i + 2) + "_domain_phrase.model"))
+            self.PhraseDetectionDomain = PhraseDetection(savePhraserPaths=savePhraserPaths, file_overwrite=False,
+                                                         min_count=10, threshold=15.0, max_vocab_size=40000000,
+                                                         delimiter=b'_', scoring='default',
+                                                         wordNumInPhrase=wordNumInPhrase)
         else:
             self.PhraseDetectionDomain = phrase_detection_domain
 
         if phrase_detection_general == "default":
-            self.PhraseDetectionGeneral = PhraseDetection(savePhraserPaths="", min_count=10, threshold=15.0,
-                                                          max_vocab_size=40000000, delimiter=b'_', scoring='default',
-                                                          wordNumInPhrase=3)
+            wordNumInPhrase = 3
             savePhraserPaths = []
-            for i in range(self.PhraseDetectionGeneral.wordNumInPhrase - 1):
-                savePhraserPaths.append(os.path.join(self.outputDir, "/Phrases/" + str(i + 2) + "_domain_phrase.model"))
-            self.PhraseDetectionGeneral.savePhraserPaths = savePhraserPaths
-
+            phrasesDir = os.path.join(self.outputDir, "Phrases")
+            if not os.path.exists(phrasesDir):
+                os.makedirs(phrasesDir)
+            for i in range(wordNumInPhrase - 1):
+                savePhraserPaths.append(
+                    os.path.join(self.outputDir, "Phrases/" + str(i + 2) + "_general_phrase.model"))
+            self.PhraseDetectionGeneral = PhraseDetection(savePhraserPaths=savePhraserPaths, file_overwrite=False,
+                                                          min_count=10, threshold=15.0, max_vocab_size=40000000,
+                                                          delimiter=b'_', scoring='default',
+                                                          wordNumInPhrase=wordNumInPhrase)
         else:
             self.PhraseDetectionGeneral = phrase_detection_general
 
         if domain_specific_term == "default":
-            self.DomainSpecificTerm = DomainTerm(maxTermsCount=300000, thresholdScore=10.0,
-                                                 termFreqRange=(30, float("inf")))
+            self.DomainTerm = DomainTerm(maxTermsCount=300000, thresholdScore=10.0,
+                                         termFreqRange=(30, float("inf")))
         else:
-            self.DomainSpecificTerm = domain_specific_term
+            self.DomainTerm = domain_specific_term
         if semantic_related_words == "default":
             self.SemanticRelatedWords = SemanticRelatedWord(self.filePaths["domain_corpus_phrase"],
                                                             self.filePaths["fasttext"], self.filePaths["skipgram"],
-                                                            fasttext=None, skipgram=None,
-                                                            topn_fasttext=8, topn_skipgram=15, min_count=5, size=200,
-                                                            workers=8, window=5
+                                                            file_overwrite=False, topn_fasttext=8, topn_skipgram=15,
+                                                            min_count=5, size=200, workers=8, window=5
                                                             )
         else:
             self.SemanticRelatedWords = semantic_related_words
@@ -86,7 +101,7 @@ class DomainThesaurus(object):
         else:
             self.WordClassification = word_classification
         if synonym_group == "default":
-            self.SynonymGroup = SynonymGroup(group_synonym_type="synonym", get_new_key=default_get_new_key)
+            self.SynonymGroup = SynonymGroup(group_synonym_type="synonym", domain_vocab=self.domain_vocab)
         else:
             self.SynonymGroup = synonym_group
 
@@ -116,8 +131,8 @@ class DomainThesaurus(object):
             self.filePaths["domain_vocab"] = os.path.join(self.outputDir, "domain_vocab.json")
             self.filePaths["general_vocab"] = os.path.join(self.outputDir, "general_vocab.json")
             self.filePaths["domain_terms"] = os.path.join(self.outputDir, "domain_terms.txt")
-            self.filePaths["fasttext"] = os.path.join(self.outputDir, "/fasttext/fasttext.model")
-            self.filePaths["skipgram"] = os.path.join(self.outputDir, "/skipgram/skipgram.model")
+            self.filePaths["fasttext"] = os.path.join(self.outputDir, "fasttext/fasttext.model")
+            self.filePaths["skipgram"] = os.path.join(self.outputDir, "skipgram/skipgram.model")
             self.filePaths["semantic_related_words"] = os.path.join(self.outputDir, "semantic_related_words.json")
             self.filePaths["origin_thesaurus"] = os.path.join(self.outputDir, "origin_thesaurus.json")
             self.filePaths["final_thesaurus"] = os.path.join(self.outputDir, "final_thesaurus.json")
@@ -164,9 +179,10 @@ class DomainThesaurus(object):
 
     def __domainTerm(self):
         if not os.path.exists(self.filePaths["domain_terms"]):
-            self.domain_terms = self.DomainSpecificTerm.extract_term(domainSpecificVocab=self.domain_vocab,
-                                                                     generalVocab=self.general_vocab)
+            self.domain_terms = self.DomainTerm.extract_term(domainSpecificVocab=self.domain_vocab,
+                                                             generalVocab=self.general_vocab)
             logger.info("save domain terms to local")
+            logging.info(self.domain_terms[0:20])
             with codecs.open(self.filePaths["domain_terms"], mode="w", encoding="utf-8") as fw:
                 fw.writelines([term + "\n" for term in self.domain_terms])
         else:
@@ -200,7 +216,9 @@ class DomainThesaurus(object):
 
     def __groupSynonyms(self):
         if not os.path.exists(self.filePaths["final_thesaurus"]):
-
+            if isinstance(self.SynonymGroup, SynonymGroup):   # if use default synonym group class
+                self.SynonymGroup.domain_vocab = self.domain_vocab
+                # logger.info(str(len(self.domain_vocab)))
             self.final_thesaurus = self.SynonymGroup.group_synonyms(dst=self.origin_thesaurus)
             logger.info("save final thesaurus to local")
             with codecs.open(self.filePaths["final_thesaurus"], mode="w", encoding="utf-8") as fw:

@@ -1,5 +1,6 @@
 """
-class to clean data
+Class  and methods to clean data.
+We provide four methods to seperately clean data
 """
 import codecs
 import re
@@ -214,7 +215,7 @@ def cleanEngXml(xmlPath="Posts.xml", savePath="cleanEng.txt"):
     for _, elem in context:  # 迭代每一个
         c += 1
         if (c % 50000 == 0):
-            print("already pasrse record:", str(c / 10000) + "W")
+            logging.info("already pasrse record:", str(c / 10000) + "W")
         title, body, typeId = elem.get("Title"), elem.get("Body"), elem.get("PostTypeId")
         elem.clear()
         if (typeId is None):
@@ -231,7 +232,7 @@ def cleanEngXml(xmlPath="Posts.xml", savePath="cleanEng.txt"):
         if (title is not None):
             datas.append(BeautifulSoup(title, "lxml").get_text())
         # 开始处理获取的数据
-    print("开始清洗数据")
+    logging.info("clean data")
     fw = codecs.open(savePath, "w", encoding="utf-8")
     for strText in datas:
         strText = strText.lower()

@@ -21,7 +21,7 @@ class DomainTerm(object):
             generalVocabCount += v
         # extract domain specific terms
         candidateTerms = []
-        for word, freq in self.domainSpecificVocab.items():
+        for word, freq in domainSpecificVocab.items():
             if freq < self.termFreqRange[0] or freq > self.termFreqRange[1]:
                 continue
             if word not in generalVocab:
@@ -33,7 +33,7 @@ class DomainTerm(object):
         candidateTerms.sort(key=lambda x: x[1], reverse=True)
         terms = candidateTerms[0:self.maxTermsCount]
         logging.info("extract %d terms in total" % len(terms))
-        return terms
+        return [term[0] for term in terms]
 
 
 if __name__ == "__main__":

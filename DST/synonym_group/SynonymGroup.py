@@ -3,13 +3,10 @@ merge synonyms
 for example, A is similar to B and C, so B is smilar to C
 """
 import networkx as nx
-def default_get_new_key(terms,vocab):
-    key = max(terms, key=lambda x: vocab[x] if x in vocab else 0)
-    return key
 class SynonymGroup(object):
-    def __init__(self, group_synonym_type, get_new_key):
+    def __init__(self, group_synonym_type, domain_vocab):
         self.group_synonym_type = group_synonym_type
-        self.get_new_key = get_new_key
+        self.domain_vocab = domain_vocab
 
     def group_synonyms(self, dst):
         G = nx.Graph()
@@ -29,7 +26,7 @@ class SynonymGroup(object):
         otherKeys = list(v.keys()).copy()
         otherKeys.remove(self.group_synonym_type)
         for group in groups:
-            key = self.get_new_key(group)
+            key = max(group, key=lambda x: self.domain_vocab[x] if x in self.domain_vocab else 0)
             group.remove(key)
             newDi[key] = {self.group_synonym_type: group}
             for i in otherKeys:
