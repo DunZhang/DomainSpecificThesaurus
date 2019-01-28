@@ -1,15 +1,15 @@
-domain-thesaurus
+DomainThesaurus
 ================
 Introduction
 ------------
 
-**domain-thesaurus** is a python package offering a techniques of extracting domain-specific
+**DomainThesaurus** is a python package offering a techniques of extracting domain-specific
 thesaurus which is commonly used in *Natural Language Processing*.
 
 Installation
 ------------
 
-**domain-thesaurus** is tested to work under *Python 3.x*.
+**DomainThesaurus** is tested to work under *Python 3.x*.
 We will try to support *Python 2.x*.
 
 Dependency requirements:
@@ -17,10 +17,10 @@ Dependency requirements:
 * gensim(>=3.6.0)
 * networkx(>=2.1)
 
-**domain-thesaurus** is currently available on the PyPi's repository and you can
+**DomainThesaurus** is currently available on the PyPi's repository and you can
 install it via `pip`::
 
-  pip install domain-thesaurus
+  pip install DomainThesaurus
 
 If you prefer, you can clone it and run the setup.py file. Use the following
 command to get a copy from GitHub::

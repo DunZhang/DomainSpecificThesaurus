@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 if __name__ == "__main__":
     #
     print(123)
-    # dst = DomainThesaurus(domain_specific_corpus_path="E:/testMath/clean_math.txt",
+    # dst = DST(domain_specific_corpus_path="E:/testMath/clean_math.txt",
     #           general_corpus_path="",
     #           outputDir="E:/testMath",
     #           filePaths=None,

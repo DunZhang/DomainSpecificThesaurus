@@ -1,6 +1,6 @@
 Metadata-Version: 1.2
-Name: domain-thesaurus
-Version: 1.0.4
+Name: DomainThesaurus
+Version: 1.0.9
 Summary: extract domain thesaurus automatically
 Home-page: https://github.com/DunZhang/DomainSpecificThesaurus
 Author: ZhangDun, ChenXiang, Chunyang Chen
@@ -8,18 +8,18 @@ Author-email: dunnzhang0@gmail.com, xchencs@ntu.edu.cn, chunyang.chen@monash.edu
 Maintainer: ZhangDun
 Maintainer-email: dunnzhang0@gmail.com
 License: MIT
-Description: domain-thesaurus
+Description: DomainThesaurus
         ================
         Introduction
         ------------
         
-        **domain-thesaurus** is a python package offering a techniques of extracting domain-specific
+        **DomainThesaurus** is a python package offering a techniques of extracting domain-specific
         thesaurus which is commonly used in *Natural Language Processing*.
         
         Installation
         ------------
         
-        **domain-thesaurus** is tested to work under *Python 3.x*.
+        **DomainThesaurus** is tested to work under *Python 3.x*.
         We will try to support *Python 2.x*.
         
         Dependency requirements:
@@ -27,10 +27,10 @@ Description: domain-thesaurus
         * gensim(>=3.6.0)
         * networkx(>=2.1)
         
-        **domain-thesaurus** is currently available on the PyPi's repository and you can
+        **DomainThesaurus** is currently available on the PyPi's repository and you can
         install it via `pip`::
         
-          pip install domain-thesaurus
+          pip install DomainThesaurus
         
         If you prefer, you can clone it and run the setup.py file. Use the following
         command to get a copy from GitHub::
