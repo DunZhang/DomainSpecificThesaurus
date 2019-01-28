@@ -196,6 +196,5 @@ class WordClassification(object):
                 res[k][self.classify_word_func(k, i)].append(i)
         return res
 
-
 if __name__ == "__main__":
     pass
