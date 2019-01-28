@@ -1,6 +1,7 @@
 """
-Class  and methods to clean data.
-We provide four methods to seperately clean data
+Class  and functions to clean data.
+We provide four methods to seperately clean StackOver flow, Mathematics Stack Exchange, English
+Language & Usage Stack Exchange and Wikipedia
 """
 import codecs
 import re
@@ -12,7 +13,16 @@ from bs4 import BeautifulSoup
 
 
 class CleanDataSO(object):
+    """
+    class to clean StackOver flow data
+    """
+
     def __init__(self, so_xml_path, clean_data_path):
+        """
+        :param so_xml_path: the path of StackOver flow data, the data is big and
+                can be downloaded from https://archive.org/download/stackexchange
+        :param clean_data_path: save clean data to text file ( one line one sentence).
+        """
         self.__reSub0 = re.compile("(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]")  # URL
         self.__reSub1 = re.compile("[\[\]<>`~$\^&*=|%@(){},:\"/'\\\\]")  # replace with " "
         self.__rePlus = re.compile("[^+]\+[^+]")
@@ -36,6 +46,9 @@ class CleanDataSO(object):
         return sentences
 
     def transform(self):
+        """
+        clean data
+        """
         logger.info("clean stack overflow data")
         context = etree.iterparse(self.so_xml_path, encoding="utf-8")
         fw = codecs.open(self.clean_data_path, mode="w", encoding="utf-8")
@@ -69,7 +82,16 @@ class CleanDataSO(object):
 
 
 class CleanDataWiki(object):
+    """
+    class to clean wiki articles
+    """
+
     def __init__(self, wiki_data_path, clean_data_path):
+        """
+        :param wiki_data_path: the path of wiki data, the data is big and
+                can be downloaded from https://dumps.wikimedia.org/enwiki/latest/
+        :param clean_data_path: save clean data to text file ( one line one sentence).
+        """
         self.wiki_data_path, self.clean_data_path = wiki_data_path, clean_data_path
         self.__PATTERNS = []
         self.__PATTERNS.append(re.compile("\[\[file[\s\S]*?\]\][\r\n]"))  # 匹配[[file开始的段落
@@ -81,7 +103,7 @@ class CleanDataWiki(object):
         self.__PATTERNS.append(re.compile("\[\[[^]]*?\|"))  # 过滤[[ content|
         self.__PATTERNS.append("[']{2,3}")  # ''  '''
         self.__PATTERNS.append(re.compile("[\[\]<>`~$\^&*=|%@(){},:\"/'\\\\]"))  # 一些替换
-        # 预编译一部分  文章无用section
+        #
         self.__PATTERNS_SECT = []
         self.__PATTERNS_SECT.append(re.compile("[=]{2,8} footnotes [=]{2,8}"))
         self.__PATTERNS_SECT.append(re.compile("[=]{2,8} endnotes [=]{2,8}"))
@@ -148,7 +170,10 @@ class CleanDataWiki(object):
 
 def cleanMathXml(xmlPath="../data/Posts.xml", savePath="../result/cleanMath.txt"):
     """
-    clean math data
+    :param xmlPath: the path of Mathematics Stack Exchange data, the data is big and
+                can be downloaded from https://archive.org/download/stackexchange
+    :param savePath: save clean data to text file ( one line one sentence).
+    :return:
     """
     counts = [0, 0, 0]
     reSub0 = re.compile("(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]")  # URL
@@ -202,7 +227,10 @@ def cleanMathXml(xmlPath="../data/Posts.xml", savePath="../result/cleanMath.txt"
 
 def cleanEngXml(xmlPath="Posts.xml", savePath="cleanEng.txt"):
     """
-    clean eng data
+    :param xmlPath: the path of English Language & Usage Stack Exchange data, the data is big and
+                can be downloaded from https://archive.org/download/stackexchange
+    :param savePath: save clean data to text file ( one line one sentence).
+    :return:
     """
     counts = [0, 0, 0]
     reSub0 = re.compile("(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]")  # URL

@@ -1,5 +1,6 @@
 """
-class to extrace domain-specific terms
+class to extract domain-specific terms
+for examples, 'JavaScript' in CS and 'limit' in math
 """
 import logging
 
@@ -7,12 +8,28 @@ logger = logging.getLogger(__name__)
 
 
 class DomainTerm(object):
+    """
+    class to extract domain-specific terms
+    """
+
     def __init__(self, maxTermsCount=300000, thresholdScore=10.0, termFreqRange=(30, float("inf"))):
+        """
+        :param maxTermsCount: the max number of domain terms
+        :param thresholdScore: word larger than thresholdScore will be recognized as domain term
+        :param termFreqRange: tuple-like object(minFreq,maxFreq), if word is not in the range, it will be not considered
+                as term
+        """
         self.maxTermsCount = maxTermsCount
         self.thresholdScore = thresholdScore
         self.termFreqRange = termFreqRange
 
     def extract_term(self, domainSpecificVocab, generalVocab):
+        """
+        extract domain term
+        :param domainSpecificVocab: all words in domain-corpus, dict object, {"word1":word1Count,"word1":word1Count,...}
+        :param generalVocab: all words in general-corpus, dict object, {"word1":word1Count,"word1":word1Count,...}
+        :return: terms of list.[term1,term2,term3 ....]
+        """
         # get word count in the two vocabulary
         domainSpecificVocabCount, generalVocabCount = 0.0, 0.0
         for _, v in domainSpecificVocab.items():

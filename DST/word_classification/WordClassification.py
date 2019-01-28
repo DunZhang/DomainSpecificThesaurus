@@ -173,10 +173,20 @@ def default_classify_func(term1, term2):
 
 class WordClassification(object):
     def __init__(self, classify_word_func, synonym_types):
+
+        """
+        :param classify_word_func: function, parameters: term1,term2, return the type of term2 to term1
+        :param synonym_types: list, all synonym types
+        """
         self.classify_word_func = classify_word_func
         self.synonym_types = synonym_types
 
     def classifyWords(self, vocab):
+        """
+        classifiy word
+        :param vocab: dict, key:term, value: list, the semantic realted words of this term
+        :return: dict, key:term, value:dict(key:synonym type, value: list, words of this synonym type )
+        """
         res = {}
         for k, v in vocab.items():
             res[k] = {}

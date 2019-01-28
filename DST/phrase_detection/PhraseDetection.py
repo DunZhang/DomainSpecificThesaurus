@@ -1,6 +1,5 @@
 """
 class to detect phrase
-just simplely package existing algorithms
 """
 import codecs
 import gc
@@ -13,10 +12,6 @@ from gensim.models.word2vec import LineSentence
 
 
 class TxtIter(object):
-    """
-    step1.2.2短语迭代器，bigram若为None，就是不经处理直接迭代
-    """
-
     def __init__(self, sentences, ngrams):
         self.ngrams = ngrams
         self.sentences = sentences
@@ -37,12 +32,38 @@ class TxtIter(object):
 
 class PhraseDetection(object):
     """
-    setences to senteces with phrase, use gensim
+    class to detect phrase
+    using Phrases in gensim
+    see more details in https://arxiv.org/abs/1310.4546 and https://svn.spraakdata.gu.se/repos/gerlof/pub/www/Docs/npmi-pfd.pdf
     
     """
 
     def __init__(self, savePhraserPaths, file_overwrite=False, min_count=10, threshold=15.0,
                  max_vocab_size=40000000, delimiter=b'_', scoring='default', wordNumInPhrase=3):
+        """
+        :param savePhraserPaths: the paths of phrases to save
+        :param file_overwrite: if the phrase is existing, whether overwrite
+        :param min_count: float, optional
+            Ignore all words and bigrams with total collected count lower than this value.
+        :param threshold: float, optional
+            Represent a score threshold for forming the phrases (higher means fewer phrases).
+            A phrase of words `a` followed by `b` is accepted if the score of the phrase is greater than threshold.
+            Heavily depends on concrete scoring-function, see the `scoring` parameter.
+        :param max_vocab_size: int, optional
+            Maximum size (number of tokens) of the vocabulary. Used to control pruning of less common words,
+            to keep memory under control. The default of 40M needs about 3.6GB of RAM. Increase/decrease
+            `max_vocab_size` depending on how much available memory you have.
+        :param delimiter:str, optional
+            Glue character used to join collocation tokens, should be a byte string (e.g. b'_').
+        :param scoring:{'default', 'npmi', function}, optional
+            Specify how potential phrases are scored. `scoring` can be set with either a string that refers to a
+            built-in scoring function, or with a function with the expected parameter names.
+            Two built-in scoring functions are available by setting `scoring` to a string:
+
+            #. "default" - :func:`~gensim.models.phrases.original_scorer`.
+            #. "npmi" - :func:`~gensim.models.phrases.npmi_scorer`.
+        :param wordNumInPhrase: word number in a phrase
+        """
         self.phrasers = []
         self.savePhraserPaths = savePhraserPaths
         self.file_overwrite = file_overwrite
@@ -54,6 +75,10 @@ class PhraseDetection(object):
         self.wordNumInPhrase = wordNumInPhrase
 
     def fit(self, sentencesPath):
+        """
+        train phrases
+        :param sentencesPath:the path of text file, the text file should be the format: one line one sentence
+        """
         self.phrasers = []
         for path in self.savePhraserPaths:
             if not os.path.exists(path):  # need train
@@ -80,6 +105,11 @@ class PhraseDetection(object):
             del phrase
 
     def transform(self, sentencesPath, savePath):
+        """
+        use trained phrases to transform sentences
+        :param sentencesPath: the path of text file, the text file should be the format: one line one sentence
+        :param savePath: the path of transformed text file, the text file are the format: one line one sentence
+        """
         with codecs.open(savePath, mode="w", encoding="utf-8") as fr:
             sentences = TxtIter(sentences=codecs.open(sentencesPath, mode="r", encoding="utf-8"), ngrams=self.phrasers)
             lines = []

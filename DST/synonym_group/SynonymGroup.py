@@ -3,12 +3,27 @@ merge synonyms
 for example, A is similar to B and C, so B is smilar to C
 """
 import networkx as nx
+
+
 class SynonymGroup(object):
+    """
+    class to group synonyms
+    """
+
     def __init__(self, group_synonym_type, domain_vocab):
+        """
+        :param group_synonym_type: group domain
+        :param domain_vocab: dict,key:word, value: word count. the vocabulary of domain-corpus, used to select new key
+        """
         self.group_synonym_type = group_synonym_type
         self.domain_vocab = domain_vocab
 
     def group_synonyms(self, dst):
+        """
+        group synonyms
+        :param dst: dict, the dictionary to be grouped
+        :return: dict, grouped dictionary
+        """
         G = nx.Graph()
         nodes, edges = [], []
         for k, v in dst.items():

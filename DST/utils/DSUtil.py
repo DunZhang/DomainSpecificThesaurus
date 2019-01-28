@@ -8,6 +8,12 @@ def _check_type(s):
 
 
 def levenshtein_distance(s1, s2):
+    """
+    compute levenshtein distance
+    :param s1: str
+    :param s2: str
+    :return: levenshtein_distance
+    """
     _check_type(s1)
     _check_type(s2)
 

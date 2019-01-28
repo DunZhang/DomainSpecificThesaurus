@@ -9,11 +9,7 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 if __name__ == "__main__":
     #
-    with pytest.raises(TypeError,match="testzd:"):
-        cleanMathXml(xmlPath="D:\\Codes\\PythonProj\\MathDict\\data\\Posts.xml", savePath="E:/testMath/clean_math.txt")
-        cwiki = CleanDataWiki(wiki_data_path="D:\\Codes\\PythonProj\\MathDict\\data\\enwiki-latest-pages-articles.xml",
-                              clean_data_path="E:/testMath/clean_wiki.txt")
-        cwiki.tranform()
+    print(123)
     # dst = DomainThesaurus(domain_specific_corpus_path="E:/testMath/clean_math.txt",
     #           general_corpus_path="",
     #           outputDir="E:/testMath",
