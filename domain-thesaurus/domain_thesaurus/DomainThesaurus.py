@@ -8,7 +8,7 @@ future optimization：
 3. the information in logging-info should be more clear
 4. unit-test (pytest) should be added.
 5. use logger more reasonable
-6. DST.word_classification.WordClassification is not good
+6. domain-thesaurus.word_classification.WordClassification is not good
 """
 import codecs
 import json
