@@ -3,7 +3,7 @@ domain-thesaurus
 Introduction
 ------------
 
-**domain-thesaurus** is a *python* package offering a techniques of extracting domain-specific
+**domain-thesaurus** is a python package offering a techniques of extracting domain-specific
 thesaurus which is commonly used in *Natural Language Processing*.
 
 Installation
@@ -45,16 +45,7 @@ A simple example::
     >>> # extract domain thesauruss
     >>> dst.extract()
 
-The code design is flexible, you can replace thg default `function class` with your own `function class` to get a better
+The code design is flexible, you can replace the default `function class` with your own `function class` to get a better
 performance.
-
-Contributors
-------------
-Thanks to all who have contributed to this project!
-If you have contributed and your name is not listed below please let me know.
-
-    - ZhangDun
-    - XiangChen
-    - Chunyang Chen
 
 

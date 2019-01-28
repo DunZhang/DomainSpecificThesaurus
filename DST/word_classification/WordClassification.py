@@ -2,7 +2,11 @@
 class to word classification
 """
 import re
-from DST.utils.DSUtil import levenshtein_distance, StrSimilarity
+import os
+import sys
+PORJ_PATH = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+sys.path.append(PORJ_PATH)
+from DST.utils.DSUtil import levenshtein_distance
 
 
 def __numberInString(term):

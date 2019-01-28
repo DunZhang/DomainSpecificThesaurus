@@ -13,10 +13,13 @@ future optimization：
 import codecs
 import json
 import logging
+import os
+import sys
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-import os
+PORJ_PATH = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+sys.path.append(PORJ_PATH)
 from DST.phrase_detection.PhraseDetection import PhraseDetection
 from DST.domain_term.DomainTerm import DomainTerm
 from DST.semantic_related_word.SemanticRelatedWord import SemanticRelatedWord
