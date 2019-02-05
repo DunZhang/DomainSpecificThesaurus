@@ -1,10 +1,28 @@
 DomainThesaurus
 ================
+
 Introduction
 ------------
 
 **DomainThesaurus** is a python package offering a techniques of extracting domain-specific
 thesaurus which is commonly used in *Natural Language Processing*.
+Except for domain-specific thesaurus, the package also provide several useful modules,
+for example, **DomainTerm** for extracting domain-specific term and **WordClassification**
+for classifying words (e.g. abbreviation, synonyms).
+
+Domain-Specific term
+::::::::::::::::::::::::::::::
+
+**DomainTerm** can automatically extract domain-specific terms from domain corpus.
+For example, *Javascript* in computer science and technology and *karush kuhn tucker* in
+mathematics.
+
+Abbreviations and Synonyms
+:::::::::::::::::::::::::::
+
+The module **WordClassification** can divide semantic-related words into different types.
+For example, *ie* is the abbreviation of *internet explorer* and *javascripts* is
+the synonym of *javascript*.
 
 Installation
 ------------
@@ -34,14 +52,7 @@ Usage
 A simple example::
     >>> dst = DomainThesaurus(domain_specific_corpus_path="your domain specific corpus path",
     >>>                       general_corpus_path="your general corpus path",
-    >>>                       outputDir="path of output",
-    >>>                       filePaths=None,
-    >>>                       phrase_detection_domain="default",
-    >>>                       phrase_detection_general="default",
-    >>>                       domain_specific_term="default",
-    >>>                       semantic_related_words="default",
-    >>>                       word_classification="default",
-    >>>                       synonym_group="default")
+    >>>                       outputDir="path of output")
     >>> # extract domain thesauruss
     >>> dst.extract()
 
