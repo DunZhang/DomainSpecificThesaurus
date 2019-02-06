@@ -59,9 +59,9 @@ class SemanticRelatedWord(object):
             logger.info("train fasttext")
             if not os.path.exists(os.path.dirname(self.fasttext_path)):
                 os.makedirs(os.path.dirname(self.fasttext_path))
-                self.fasttext = FastText(sentences=LineSentence(self.domain_corpus_phrase_path),
-                                         min_count=self.min_count, size=self.size, sg=1, workers=self.workers,
-                                         window=self.window)
+            self.fasttext = FastText(sentences=LineSentence(self.domain_corpus_phrase_path),
+                                     min_count=self.min_count, size=self.size, sg=1, workers=self.workers,
+                                     window=self.window)
             logger.info("save fasttext to local")
             self.fasttext.save(self.fasttext_path)
 
@@ -72,10 +72,10 @@ class SemanticRelatedWord(object):
             logger.info("train skipgram")
             if not os.path.exists(os.path.dirname(self.skipgram_path)):
                 os.makedirs(os.path.dirname(self.skipgram_path))
-                self.skipgram = Word2Vec(
-                    sentences=LineSentence(self.domain_corpus_phrase_path),
-                    min_count=self.min_count, size=self.size, sg=1, workers=self.workers, window=self.window)
-                self.skipgram.delete_temporary_training_data(True)
+            self.skipgram = Word2Vec(
+                sentences=LineSentence(self.domain_corpus_phrase_path),
+                min_count=self.min_count, size=self.size, sg=1, workers=self.workers, window=self.window)
+            self.skipgram.delete_temporary_training_data(True)
             logger.info("save skipgram to local")
             self.skipgram.save(self.skipgram_path)
         # get semantic related words

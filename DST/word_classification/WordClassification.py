@@ -4,6 +4,7 @@ class to word classification
 import re
 import os
 import sys
+
 PORJ_PATH = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(PORJ_PATH)
 from DST.utils.DSUtil import levenshtein_distance
@@ -175,6 +176,10 @@ def default_classify_func(term1, term2):
         return "other"
 
 
+def get_default_synonym_types():
+    return ["abbreviation", "other", "synonym"]
+
+
 class WordClassification(object):
     def __init__(self, classify_word_func, synonym_types):
 
@@ -199,6 +204,7 @@ class WordClassification(object):
             for i in v:
                 res[k][self.classify_word_func(k, i)].append(i)
         return res
+
 
 if __name__ == "__main__":
     pass

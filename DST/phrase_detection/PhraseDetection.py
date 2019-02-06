@@ -41,8 +41,8 @@ class PhraseDetection(object):
     def __init__(self, savePhraserPaths, file_overwrite=False, min_count=10, threshold=15.0,
                  max_vocab_size=40000000, delimiter=b'_', scoring='default', wordNumInPhrase=3):
         """
-        :param savePhraserPaths: the paths of phrases to save
-        :param file_overwrite: if the phrase is existing, whether overwrite
+        :param savePhraserPaths: list, the paths of phrases to save
+        :param file_overwrite: str, if the phrase is existing, whether overwrite
         :param min_count: float, optional
             Ignore all words and bigrams with total collected count lower than this value.
         :param threshold: float, optional
@@ -62,7 +62,7 @@ class PhraseDetection(object):
 
             #. "default" - :func:`~gensim.models.phrases.original_scorer`.
             #. "npmi" - :func:`~gensim.models.phrases.npmi_scorer`.
-        :param wordNumInPhrase: word number in a phrase
+        :param wordNumInPhrase: word number in a phrase, Note that `wordNumInPhrase-1` must be equal to length of savePhraserPaths
         """
         self.phrasers = []
         self.savePhraserPaths = savePhraserPaths
@@ -80,6 +80,10 @@ class PhraseDetection(object):
         :param sentencesPath:the path of text file, the text file should be the format: one line one sentence
         """
         self.phrasers = []
+        # path detect
+        for path in self.savePhraserPaths:
+            if not os.path.exists(os.path.dirname(path)):
+                raise FileNotFoundError(os.path.dirname(path)+" not exist")
         for path in self.savePhraserPaths:
             if not os.path.exists(path):  # need train
                 self.phrasers = None

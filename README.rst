@@ -58,5 +58,5 @@ A simple example::
 
 The code design is flexible, you can replace the default `function class` with your own `function class` to get a better
 performance.
-
+You can can find more usages in https://github.com/DunZhang/DomainSpecificThesaurus/blob/master/docs/notebooks
 
