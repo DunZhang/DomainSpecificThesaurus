@@ -5,7 +5,15 @@ Introduction
 ------------
 
 **DomainThesaurus** is a python package offering a techniques of extracting domain-specific
-thesaurus which is commonly used in *Natural Language Processing*.
+thesaurus which is commonly used in *Natural Language Processing*. Here is one item of generated
+thesaurus::
+
+    { "javascript":
+    {"abbreviation":["js"],
+    "synonym":["javavscript", "javascriprt", "javasrcript", "javascripit"],
+    "other":["coffeescript"]}
+    }
+
 Except for domain-specific thesaurus, the package also provide several useful modules,
 for example, **DomainTerm** for extracting domain-specific term and **WordClassification**
 for classifying words (e.g. abbreviation, synonyms).

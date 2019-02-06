@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 setup(
     name='DomainThesaurus',
-    version="1.1.0",
+    version="1.1.1",
     description=('extract domain thesaurus automatically'),
     long_description=open('README.rst').read(),
     author='ZhangDun, ChenXiang, Chunyang Chen',
