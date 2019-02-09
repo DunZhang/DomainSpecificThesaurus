@@ -56,27 +56,27 @@ class SemanticRelatedWord(object):
             logger.warning(self.fasttext_path + " already exists, program will load it.")
             self.fasttext = FastText.load(self.fasttext_path)
         else:  # train
-            logger.info("train fasttext")
+            logger.info("train fasttext...")
             if not os.path.exists(os.path.dirname(self.fasttext_path)):
                 os.makedirs(os.path.dirname(self.fasttext_path))
             self.fasttext = FastText(sentences=LineSentence(self.domain_corpus_phrase_path),
                                      min_count=self.min_count, size=self.size, sg=1, workers=self.workers,
                                      window=self.window)
-            logger.info("save fasttext to local")
+            logger.info("save fasttext to local...")
             self.fasttext.save(self.fasttext_path)
 
         if os.path.exists(self.skipgram_path) and self.file_overwrite == False:  # exist, just load
             logger.warning(self.skipgram_path + " already exists, program will load it.")
             self.skipgram = Word2Vec.load(self.skipgram_path)
         else:  # not exist, need to train
-            logger.info("train skipgram")
+            logger.info("train skipgram...")
             if not os.path.exists(os.path.dirname(self.skipgram_path)):
                 os.makedirs(os.path.dirname(self.skipgram_path))
             self.skipgram = Word2Vec(
                 sentences=LineSentence(self.domain_corpus_phrase_path),
                 min_count=self.min_count, size=self.size, sg=1, workers=self.workers, window=self.window)
             self.skipgram.delete_temporary_training_data(True)
-            logger.info("save skipgram to local")
+            logger.info("save skipgram to local...")
             self.skipgram.save(self.skipgram_path)
         # get semantic related words
         logger.info("get semantic related words")

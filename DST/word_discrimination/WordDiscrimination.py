@@ -2,11 +2,11 @@
 class to word classification
 """
 import re
-import os
 import networkx as nx
-PORJ_PATH = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 from DST.utils.DSUtil import levenshtein_distance
+import logging
 
+logger = logging.getLogger(__name__)
 
 def __numberInString(term):
     for i in term:
@@ -213,7 +213,7 @@ class WordDiscrimination(object):
                         newDi[key][i].extend(dst[j][i])
         return newDi
 
-    def classifyWords(self, vocab):
+    def discriminate_words(self, vocab):
         """
         classifiy word
         :param vocab: dict, key:term, value: list, the semantic realted words of this term
@@ -227,6 +227,7 @@ class WordDiscrimination(object):
             for i in v:
                 res[k][self.classify_word_func(k, i)].append(i)
         if self.group_dict:
+            logging.info("group thesaurus......")
             return self.__group_dict(res)
         else:
             return res

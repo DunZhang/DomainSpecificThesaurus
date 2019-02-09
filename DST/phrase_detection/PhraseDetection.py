@@ -95,7 +95,7 @@ class PhraseDetection(object):
         self.phrasers = []
         c = 2
         for path in self.savePhraserPaths:
-            logging.info("get %d-gram phrase" % c)
+            logging.info("getting %d-gram phrase......" % c)
             c += 1
             phrase = Phrases(
                 sentences=TxtIter(sentences=codecs.open(sentencesPath, mode="r", encoding="utf-8"),
@@ -122,7 +122,7 @@ class PhraseDetection(object):
                     fr.writelines(lines)
                     lines = []
             fr.writelines(lines)
-        logger.info("delete all phraser")
+        logger.info("delete all phraser to save memory")
         for i in self.phrasers:
             del i
         del self.phrasers

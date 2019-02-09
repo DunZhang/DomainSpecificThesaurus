@@ -88,15 +88,15 @@ class DownloadData():
     def __init__(self):
         self.fileId = {
             "test": "17uxLDQu1tOqHG6XZ7AiKabvAIY-iwJnF",
-            "general_vocab": "",
-            "domain_corpus": "",
+            "general_vocab": "1SJonZ_-ns8HKAqsHCgswHssXlUNyX9gW",
+            "eng_corpus": "1ez1riFK_EDNfnHBwK7zLhXLUcYD7uYTh",
         }
 
-    def download_data(self, dest_path, fileName="test", overwrite=False):
-        GoogleDriveDownloader.download_file_from_google_drive(file_id=self.fileId[fileName], dest_path=dest_path,
+    def download_data(self, dest_path, download_file_name="test", overwrite=False):
+        GoogleDriveDownloader.download_file_from_google_drive(file_id=self.fileId[download_file_name], dest_path=dest_path,
                                                               overwrite=overwrite, unzip=True)
 
 
 if __name__ == "__main__":
     data = DownloadData()
-    data.download_data(dest_path="E://cezd//comments.zip", fileName="test", overwrite=True)
+    data.download_data(dest_path="E://cezd//comments.zip", download_file_name="test", overwrite=True)

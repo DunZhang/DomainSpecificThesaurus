@@ -18,6 +18,7 @@ import os
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 logging.getLogger("gensim").setLevel(logging.WARNING)
+logging.getLogger("summarizer").setLevel(logging.WARNING)
 
 
 from DST.phrase_detection.PhraseDetection import PhraseDetection
@@ -94,7 +95,7 @@ class DomainThesaurus(object):
                 the same parameters and return with the default class
 
         :param word_discrimination: class to  classify semantic related words, optional,
-                if it is specified. it must be a class with the class functions: classifyWords. The function must have
+                if it is specified. it must be a class with the class functions: discriminate_words. The function must have
                 the same parameters and return with the default class
 
         :param synonym_group: class to extract group synonyms, optional,
@@ -146,14 +147,14 @@ class DomainThesaurus(object):
             self.PhraseDetectionGeneral = phrase_detection_general
 
         if domain_specific_term == "default":
-            self.DomainTerm = DomainTerm(maxTermsCount=2000, thresholdScore=13.0,
+            self.DomainTerm = DomainTerm(maxTermsCount=2000, thresholdScore=15.0,
                                          termFreqRange=(100, float("inf")))
         else:
             self.DomainTerm = domain_specific_term
         if semantic_related_words == "default":
             self.SemanticRelatedWords = SemanticRelatedWord(self.filePaths["domain_corpus_phrase"],
                                                             self.filePaths["fasttext"], self.filePaths["skipgram"],
-                                                            file_overwrite=False, topn_fasttext=3, topn_skipgram=7,
+                                                            file_overwrite=False, topn_fasttext=3, topn_skipgram=5,
                                                             min_count=20, size=200, workers=8, window=5
                                                             )
         else:
@@ -161,7 +162,7 @@ class DomainThesaurus(object):
         if word_discrimination == "default":
             self.word_discrimination = WordDiscrimination(classify_word_func=default_classify_func,
                                                           semantic_related_types=["synonym", "abbreviation", "other"],
-                                                          group_dict=False,group_word_type="synonym",domain_vocab=self.domain_vocab)
+                                                          group_dict=True,group_word_type="synonym",domain_vocab=self.domain_vocab)
         else:
             self.word_discrimination = word_discrimination
 
@@ -212,10 +213,10 @@ class DomainThesaurus(object):
 
     def __corpusVocab(self):
         if not os.path.exists(self.filePaths["domain_vocab"]):
-            logger.info("get vocabulary from domain corpus")
+            logger.info("get vocabulary from domain corpus......")
             with codecs.open(self.filePaths["domain_corpus_phrase"], mode="r", encoding="utf-8") as fr:
                 self.domain_vocab = corpusToVocab(fr)
-                logger.info("save domain vocabulary to local")
+                logger.info("save domain vocabulary to local......")
                 with codecs.open(self.filePaths["domain_vocab"], mode="w", encoding="utf-8") as fw:
                     fw.write(json.dumps(self.domain_vocab))
         else:
@@ -223,10 +224,10 @@ class DomainThesaurus(object):
             with codecs.open(self.filePaths["domain_vocab"], mode="r", encoding="utf-8") as fr:
                 self.domain_vocab = json.loads(fr.read())
         if not os.path.exists(self.filePaths["general_vocab"]):
-            logger.info("get vocabulary from general corpus")
+            logger.info("get vocabulary from general corpus......")
             with codecs.open(self.filePaths["general_corpus_phrase"], mode="r", encoding="utf-8") as fr:
                 self.general_vocab = corpusToVocab(fr)
-                logger.info("save general vocabulary to local")
+                logger.info("save general vocabulary to local......")
                 with codecs.open(self.filePaths["general_vocab"], mode="w", encoding="utf-8") as fw:
                     fw.write(json.dumps(self.general_vocab))
         else:
@@ -239,7 +240,6 @@ class DomainThesaurus(object):
             self.domain_terms = self.DomainTerm.extract_term(domainSpecificVocab=self.domain_vocab,
                                                              generalVocab=self.general_vocab)
             logger.info("save domain terms to local")
-            logging.info(self.domain_terms[0:20])
             with codecs.open(self.filePaths["domain_terms"], mode="w", encoding="utf-8") as fw:
                 fw.writelines([term + "\n" for term in self.domain_terms])
         else:
@@ -261,7 +261,10 @@ class DomainThesaurus(object):
 
     def __discriminateWords(self):
         if not os.path.exists(self.filePaths["final_thesaurus"]):
-            self.origin_thesaurus = self.word_discrimination.classifyWords(vocab=self.semantic_related_words)
+            if isinstance(self.word_discrimination,WordDiscrimination):
+                if self.word_discrimination.group_dict:
+                    self.word_discrimination.domain_vocab = self.domain_vocab
+            self.origin_thesaurus = self.word_discrimination.discriminate_words(vocab=self.semantic_related_words)
             # save origin_thesaurus
             logger.info("save thesaurus to local")
             with codecs.open(self.filePaths["final_thesaurus"], mode="w", encoding="utf-8") as fw:
@@ -281,26 +284,27 @@ class DomainThesaurus(object):
         :return: the final thesaurus
         """
         # phrase detection
-        logger.info("begin to detect phrase")
+        logger.info("begin to detect phrase...")
         self.__phraseDetection()
         logger.info("finish phrase detection")
         # extract domain specific term
         # get vocab
-        logger.info("get vocabulary from corpus")
+        logger.info("get vocabulary from corpus...")
         self.__corpusVocab()
-        logger.info("finish")
+        logger.info("finish get vocabulary from corpus")
         # get domain terms
-        logger.info("get domain term")
+        logger.info("get domain term...")
         self.__domainTerm()
         logger.info("finish get domain terms")
         # get semantic related words
-        logger.info("get semantic related words")
+        logger.info("get semantic related words...")
         self.__semanticRelatedWords()
         logger.info("finish get semantic related words")
         # classify words
-        logger.info("classify semantic related words")
+        logger.info("discriminate semantic related words...")
         self.__discriminateWords()
-        logger.info("finish classify semantic related words")
+        logger.info("finish discriminate semantic related words")
+        logger.info("already get domain-specific thesaurus, it is saved in "+self.filePaths["final_thesaurus"])
         return self.final_thesaurus
 
 
