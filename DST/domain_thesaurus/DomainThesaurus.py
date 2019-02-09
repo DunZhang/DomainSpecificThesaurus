@@ -251,7 +251,7 @@ class DomainThesaurus(object):
         if not os.path.exists(self.filePaths["semantic_related_words"]):
             self.semantic_related_words = self.SemanticRelatedWords.getSemanticRelatedWords(terms=self.domain_terms)
             # save semantic_related_words
-            logger.info("save semantic related words to local")
+            logger.info("save semantic related words to local...")
             with codecs.open(self.filePaths["semantic_related_words"], mode="w", encoding="utf-8") as fw:
                 fw.write(json.dumps(self.semantic_related_words))
         else:

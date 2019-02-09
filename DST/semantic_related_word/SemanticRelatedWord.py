@@ -79,7 +79,6 @@ class SemanticRelatedWord(object):
             logger.info("save skipgram to local...")
             self.skipgram.save(self.skipgram_path)
         # get semantic related words
-        logger.info("get semantic related words")
         res = {}
         for term in terms:
             res[term] = list(set([i[0] for i in self.fasttext.wv.most_similar(term, topn=self.topn_fasttext)] + \
