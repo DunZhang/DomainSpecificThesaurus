@@ -14,15 +14,16 @@ import codecs
 import json
 import logging
 import os
-import sys
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+logging.getLogger("gensim").setLevel(logging.WARNING)
+
+
 from DST.phrase_detection.PhraseDetection import PhraseDetection
 from DST.domain_term.DomainTerm import DomainTerm
 from DST.semantic_related_word.SemanticRelatedWord import SemanticRelatedWord
 from DST.word_discrimination.WordDiscrimination import WordDiscrimination, default_classify_func
-from DST.synonym_group.SynonymGroup import SynonymGroup
 from DST.utils.VocabUtil import corpusToVocab
 
 
@@ -122,7 +123,7 @@ class DomainThesaurus(object):
                 savePhraserPaths.append(
                     os.path.join(self.outputDir, "Phrases/" + str(i + 2) + "_domain_phrase.model"))
             self.PhraseDetectionDomain = PhraseDetection(savePhraserPaths=savePhraserPaths, file_overwrite=False,
-                                                         min_count=10, threshold=15.0, max_vocab_size=40000000,
+                                                         min_count=15, threshold=20, max_vocab_size=40000000,
                                                          delimiter=b'_', scoring='default',
                                                          wordNumInPhrase=wordNumInPhrase)
         else:
@@ -138,22 +139,22 @@ class DomainThesaurus(object):
                 savePhraserPaths.append(
                     os.path.join(self.outputDir, "Phrases/" + str(i + 2) + "_general_phrase.model"))
             self.PhraseDetectionGeneral = PhraseDetection(savePhraserPaths=savePhraserPaths, file_overwrite=False,
-                                                          min_count=10, threshold=15.0, max_vocab_size=40000000,
+                                                          min_count=15, threshold=20.0, max_vocab_size=40000000,
                                                           delimiter=b'_', scoring='default',
                                                           wordNumInPhrase=wordNumInPhrase)
         else:
             self.PhraseDetectionGeneral = phrase_detection_general
 
         if domain_specific_term == "default":
-            self.DomainTerm = DomainTerm(maxTermsCount=300000, thresholdScore=10.0,
-                                         termFreqRange=(30, float("inf")))
+            self.DomainTerm = DomainTerm(maxTermsCount=2000, thresholdScore=13.0,
+                                         termFreqRange=(100, float("inf")))
         else:
             self.DomainTerm = domain_specific_term
         if semantic_related_words == "default":
             self.SemanticRelatedWords = SemanticRelatedWord(self.filePaths["domain_corpus_phrase"],
                                                             self.filePaths["fasttext"], self.filePaths["skipgram"],
-                                                            file_overwrite=False, topn_fasttext=8, topn_skipgram=15,
-                                                            min_count=5, size=200, workers=8, window=5
+                                                            file_overwrite=False, topn_fasttext=3, topn_skipgram=7,
+                                                            min_count=20, size=200, workers=8, window=5
                                                             )
         else:
             self.SemanticRelatedWords = semantic_related_words

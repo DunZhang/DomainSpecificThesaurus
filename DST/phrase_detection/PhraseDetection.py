@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 from gensim.models.phrases import Phrases, Phraser
 from gensim.models.word2vec import LineSentence
 
-
 class TxtIter(object):
     def __init__(self, sentences, ngrams):
         self.ngrams = ngrams
