@@ -8,10 +8,10 @@ Introduction
 thesaurus which is commonly used in *Natural Language Processing*. Here is one item of generated
 thesaurus::
 
-    { "javascript":
-    {"abbreviation":["js"],
-    "synonym":["java script", "javascriprt", "javasrcript", "javascripit"],
-    "other":["coffeescript"]}
+    { "internet explorer":
+    {"abbreviation":["ie"],
+    "synonym":["internet explorers", "internet explorere", "internetexplorer"],
+    "other":["firefox","chrome","opera"]}
     }
 
 Except for domain-specific thesaurus, the package also provide several useful modules,
