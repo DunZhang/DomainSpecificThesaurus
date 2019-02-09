@@ -18,5 +18,5 @@ if __name__ == "__main__":
     #           phrase_detection_general="default",
     #           domain_specific_term="default",
     #           semantic_related_words="default",
-    #           word_classification="default",
+    #           word_discrimination="default",
     #           synonym_group="default")

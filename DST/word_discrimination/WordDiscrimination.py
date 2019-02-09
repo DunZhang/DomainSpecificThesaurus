@@ -3,10 +3,8 @@ class to word classification
 """
 import re
 import os
-import sys
-
+import networkx as nx
 PORJ_PATH = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-sys.path.append(PORJ_PATH)
 from DST.utils.DSUtil import levenshtein_distance
 
 
@@ -21,8 +19,8 @@ def __numberInString(term):
 def __isNumberSame(term1, term2):
     # if one term has number inside, the other one should have the same number
     if __numberInString(term1) or __numberInString(term2):
-        if re.findall(r"\d+", term1) != re.findall(r"\d+",
-                                                   term2):  # if the number lists are different, they are not abbreviation relationships
+        # if the number lists are different, they are not abbreviation relationships
+        if re.findall(r"\d+", term1) != re.findall(r"\d+", term2):
             return False
     return True
 
@@ -54,9 +52,6 @@ def __checkLetterOrder(shortTerm, longTerm):
 
 # check if one term is an abbreviation of the other
 def __isAbrreviation(longTerm, shortTerm):
-    """
-    判断term2是否是term1的key
-    """
     try:
         longTerm.encode(encoding="ascii")
         shortTerm.encode(encoding="ascii")
@@ -108,17 +103,12 @@ def __isAbrreviation(longTerm, shortTerm):
             return False
 
     # check if the letter order is the same
-    try:
-        if __checkLetterOrder(shortTerm, longTerm):
-            if shortTerm.replace(" ", "") in longTerm.replace(" ",
-                                                              ""):  # if shortTerm in a consecutive part of long term, it is not an abbreviation
-                return False
-            return True
-        else:
+    if __checkLetterOrder(shortTerm, longTerm):
+        # if shortTerm in a consecutive part of long term, it is not an abbreviation
+        if shortTerm.replace(" ", "") in longTerm.replace(" ", ""):
             return False
-    except Exception as e:
-        print("zdd", e)
-        print(longTerm, shortTerm, type(shortTerm), type(longTerm), len(shortTerm), len(longTerm))
+        return True
+    else:
         return False
 
 
@@ -134,7 +124,6 @@ def __isSynonym(term1, term2):
         return True
     # the numbers inside them should be the same
     if not __isNumberSame(term1, term2):
-        #        print("AA")
         return False
 
     if ("++" in term1) != ("++" in term2):  # if they both include "++" or neither do they    like c++
@@ -181,14 +170,48 @@ def get_default_synonym_types():
 
 
 class WordClassification(object):
-    def __init__(self, classify_word_func, synonym_types):
+    def __init__(self, classify_word_func, semantic_related_types,group_dict=False,group_word_type="synonym",
+                 domain_vocab=None):
 
         """
         :param classify_word_func: function, parameters: term1,term2, return the type of term2 to term1
-        :param synonym_types: list, all synonym types
+        :param semantic_related_types: list, all semantic related types
         """
         self.classify_word_func = classify_word_func
-        self.synonym_types = synonym_types
+        self.synonym_types = semantic_related_types
+        self.group_dict = group_dict
+        self.group_word_type = group_word_type
+        self.domain_vocab = domain_vocab
+
+    def __group_dict(self,dst):
+        if not isinstance(self.domain_vocab,dict):
+            raise TypeError("type of domain_vocab  should be  dict")
+        G = nx.Graph()
+        nodes, edges = [], []
+        for k, v in dst.items():
+            nodes.append(k)
+            for i in v[self.group_word_type]:
+                edges.append((k, i))
+                nodes.append(i)
+        G.add_nodes_from(nodes)
+        G.add_edges_from(edges)
+        groups = []
+        for i in nx.connected_component_subgraphs(G):
+            groups.append(list(i))
+        # get new dict
+        newDi = {}
+        otherKeys = list(v.keys()).copy()
+        otherKeys.remove(self.group_word_type)
+        for group in groups:
+            key = max(group, key=lambda x: self.domain_vocab[x] if x in self.domain_vocab else 0)
+            group.remove(key)
+            newDi[key] = {self.group_word_type: group}
+            for i in otherKeys:
+                newDi[key][i] = []
+                for j in newDi[key][self.group_word_type]:
+                    if j in dst:
+                        newDi[key][i].extend(dst[j][i])
+        return newDi
 
     def classifyWords(self, vocab):
         """
@@ -203,7 +226,10 @@ class WordClassification(object):
                 res[k][i] = []
             for i in v:
                 res[k][self.classify_word_func(k, i)].append(i)
-        return res
+        if self.group_dict:
+            return self.__group_dict(res)
+        else:
+            return res
 
 
 if __name__ == "__main__":

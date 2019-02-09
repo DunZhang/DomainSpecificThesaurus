@@ -8,7 +8,7 @@ future optimization：
 3. the information in logging-info should be more clear
 4. unit-test (pytest) should be added.
 5. use logger more reasonable
-6. DST.word_classification.WordClassification is not good
+6. DST.word_discrimination.WordClassification is not good
 """
 import codecs
 import json
@@ -23,7 +23,7 @@ sys.path.append(PORJ_PATH)
 from DST.phrase_detection.PhraseDetection import PhraseDetection
 from DST.domain_term.DomainTerm import DomainTerm
 from DST.semantic_related_word.SemanticRelatedWord import SemanticRelatedWord
-from DST.word_classification.WordClassification import WordClassification, default_classify_func
+from DST.word_discrimination.WordDiscrimination import WordClassification, default_classify_func
 from DST.synonym_group.SynonymGroup import SynonymGroup
 from DST.utils.VocabUtil import corpusToVocab
 
@@ -162,11 +162,11 @@ class DomainThesaurus(object):
             self.SemanticRelatedWords = semantic_related_words
         if word_classification == "default":
             self.WordClassification = WordClassification(classify_word_func=default_classify_func,
-                                                         synonym_types=["synonym", "abbreviation", "other"])
+                                                         semantic_related_types=["synonym", "abbreviation", "other"])
         else:
             self.WordClassification = word_classification
         if synonym_group == "default":
-            self.SynonymGroup = SynonymGroup(group_synonym_type="synonym", domain_vocab=self.domain_vocab)
+            self.SynonymGroup = SynonymGroup(group_word_type="synonym", origin_dict=self.domain_vocab)
         else:
             self.SynonymGroup = synonym_group
 
