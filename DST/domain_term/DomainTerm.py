@@ -5,7 +5,7 @@ for examples, 'JavaScript' in CS and 'limit' in math
 import logging
 
 logger = logging.getLogger(__name__)
-
+from DST.utils.TermUtil import filterTerm
 
 class DomainTerm(object):
     """
@@ -39,7 +39,7 @@ class DomainTerm(object):
         # extract domain specific terms
         candidateTerms = []
         for word, freq in domainSpecificVocab.items():
-            if freq < self.termFreqRange[0] or freq > self.termFreqRange[1]:
+            if freq < self.termFreqRange[0] or freq > self.termFreqRange[1] or not filterTerm(word):
                 continue
             if word not in generalVocab:
                 candidateTerms.append((word, float("inf")))

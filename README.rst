@@ -10,12 +10,12 @@ thesaurus::
 
     { "javascript":
     {"abbreviation":["js"],
-    "synonym":["javavscript", "javascriprt", "javasrcript", "javascripit"],
+    "synonym":["java script", "javascriprt", "javasrcript", "javascripit"],
     "other":["coffeescript"]}
     }
 
 Except for domain-specific thesaurus, the package also provide several useful modules,
-for example, **DomainTerm** for extracting domain-specific term and **WordClassification**
+for example, **DomainTerm** for extracting domain-specific term and **WordDiscrimination**
 for classifying words (e.g. abbreviation, synonyms).
 
 Domain-Specific term
@@ -28,14 +28,14 @@ mathematics.
 Abbreviations and Synonyms
 :::::::::::::::::::::::::::
 
-The module **WordClassification** can divide semantic-related words into different types.
+The module **WordDiscrimination** can divide semantic-related words into different types.
 For example, *ie* is the abbreviation of *internet explorer* and *javascripts* is
 the synonym of *javascript*.
 
 Installation
 ------------
 
-**DomainThesaurus** is tested to work under *Python 3.x*.
+**DomainThesaurus** is tested to work under `Python 3.x`. Please use it in `Python 3.x`.
 We will try to support *Python 2.x*.
 
 Dependency requirements:
@@ -68,3 +68,8 @@ The code design is flexible, you can replace the default `function class` with y
 performance.
 You can can find more usages in https://github.com/DunZhang/DomainSpecificThesaurus/blob/master/docs/notebooks
 
+Acknowledgements
+-----------------
+
+In this project, we use `Levenshtein Distance` and `GoogleDriveDownloader` from https://pypi.org/project/jellyfish/
+and  https://github.com/ndrplz/google-drive-downloader. Thanks for their code.

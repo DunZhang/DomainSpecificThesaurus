@@ -8,7 +8,7 @@ future optimization：
 3. the information in logging-info should be more clear
 4. unit-test (pytest) should be added.
 5. use logger more reasonable
-6. DST.word_discrimination.WordClassification is not good
+6. DST.word_discrimination.word_discrimination is not good
 """
 import codecs
 import json
@@ -18,12 +18,10 @@ import sys
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-PORJ_PATH = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-sys.path.append(PORJ_PATH)
 from DST.phrase_detection.PhraseDetection import PhraseDetection
 from DST.domain_term.DomainTerm import DomainTerm
 from DST.semantic_related_word.SemanticRelatedWord import SemanticRelatedWord
-from DST.word_discrimination.WordDiscrimination import WordClassification, default_classify_func
+from DST.word_discrimination.WordDiscrimination import WordDiscrimination, default_classify_func
 from DST.synonym_group.SynonymGroup import SynonymGroup
 from DST.utils.VocabUtil import corpusToVocab
 
@@ -36,20 +34,19 @@ class DomainThesaurus(object):
     def __init__(self,
                  domain_specific_corpus_path,
                  general_corpus_path,
-                 outputDir=None,
+                 outputDir,
                  filePaths=None,
                  phrase_detection_domain="default",
                  phrase_detection_general="default",
                  domain_specific_term="default",
                  semantic_related_words="default",
-                 word_classification="default",
-                 synonym_group="default"):
+                 word_discrimination="default"):
         """
         :param domain_specific_corpus_path: str, the path of domain specific corpus path, should be a text file with one line
                  one sentence.
         :param general_corpus_path: str, the path of general corpus path, should be a text file with one line
                  one sentence.
-        :param outputDir: str, optional, the directory of output, the final thesaurus and temporary files  are in the directory
+        :param outputDir: str, the directory of output, the final thesaurus and temporary files  are in the directory
 
         :param filePaths: dict, optional, specify every path of temporary files. If this parameter is None, filePaths will be generated
                 by using outputDir. If the parameter outputDir is None too, the current directory will be the outputDir.
@@ -95,7 +92,7 @@ class DomainThesaurus(object):
                 if it is specified. it must be a class with the class functions: getSemanticRelatedWords. The function must have
                 the same parameters and return with the default class
 
-        :param word_classification: class to  classify semantic related words, optional,
+        :param word_discrimination: class to  classify semantic related words, optional,
                 if it is specified. it must be a class with the class functions: classifyWords. The function must have
                 the same parameters and return with the default class
 
@@ -160,15 +157,12 @@ class DomainThesaurus(object):
                                                             )
         else:
             self.SemanticRelatedWords = semantic_related_words
-        if word_classification == "default":
-            self.WordClassification = WordClassification(classify_word_func=default_classify_func,
-                                                         semantic_related_types=["synonym", "abbreviation", "other"])
+        if word_discrimination == "default":
+            self.word_discrimination = WordDiscrimination(classify_word_func=default_classify_func,
+                                                          semantic_related_types=["synonym", "abbreviation", "other"],
+                                                          group_dict=False,group_word_type="synonym",domain_vocab=self.domain_vocab)
         else:
-            self.WordClassification = word_classification
-        if synonym_group == "default":
-            self.SynonymGroup = SynonymGroup(group_word_type="synonym", origin_dict=self.domain_vocab)
-        else:
-            self.SynonymGroup = synonym_group
+            self.word_discrimination = word_discrimination
 
     def clear(self):
         del self.domain_vocab
@@ -188,8 +182,6 @@ class DomainThesaurus(object):
     def __getFilePaths(self):
         # ouputDir is a directory that contain many temp file and final thesaurus in the process of extracting thesaurus
         if self.filePaths is None:  # use default setting
-            if self.outputDir is None:
-                self.outputDir = os.path.dirname(__file__)
             self.filePaths = {}
             self.filePaths["domain_corpus_phrase"] = os.path.join(self.outputDir, "domain_corpus_phrase.txt")
             self.filePaths["general_corpus_phrase"] = os.path.join(self.outputDir, "general_corpus_phrase.txt")
@@ -199,7 +191,6 @@ class DomainThesaurus(object):
             self.filePaths["fasttext"] = os.path.join(self.outputDir, "fasttext/fasttext.model")
             self.filePaths["skipgram"] = os.path.join(self.outputDir, "skipgram/skipgram.model")
             self.filePaths["semantic_related_words"] = os.path.join(self.outputDir, "semantic_related_words.json")
-            self.filePaths["origin_thesaurus"] = os.path.join(self.outputDir, "origin_thesaurus.json")
             self.filePaths["final_thesaurus"] = os.path.join(self.outputDir, "final_thesaurus.json")
 
     def __phraseDetection(self):
@@ -267,31 +258,17 @@ class DomainThesaurus(object):
             with codecs.open(self.filePaths["semantic_related_words"], mode="r", encoding="utf-8") as fr:
                 self.semantic_related_words = json.loads(fr.read())
 
-    def __classifyWords(self):
-        if not os.path.exists(self.filePaths["origin_thesaurus"]):
-            self.origin_thesaurus = self.WordClassification.classifyWords(vocab=self.semantic_related_words)
-            # save origin_thesaurus
-            logger.info("save origin thesaurus to local")
-            with codecs.open(self.filePaths["origin_thesaurus"], mode="w", encoding="utf-8") as fw:
-                fw.write(json.dumps(self.origin_thesaurus))
-        else:
-            logger.warning(self.filePaths["origin_thesaurus"] + "already exists, program will read it")
-            with codecs.open(self.filePaths["origin_thesaurus"], mode="r", encoding="utf-8") as fr:
-                self.origin_thesaurus = json.loads(fr.read())
-
-    def __groupSynonyms(self):
+    def __discriminateWords(self):
         if not os.path.exists(self.filePaths["final_thesaurus"]):
-            if isinstance(self.SynonymGroup, SynonymGroup):  # if use default synonym group class
-                self.SynonymGroup.domain_vocab = self.domain_vocab
-                # logger.info(str(len(self.domain_vocab)))
-            self.final_thesaurus = self.SynonymGroup.group_synonyms(dst=self.origin_thesaurus)
-            logger.info("save final thesaurus to local")
+            self.origin_thesaurus = self.word_discrimination.classifyWords(vocab=self.semantic_related_words)
+            # save origin_thesaurus
+            logger.info("save thesaurus to local")
             with codecs.open(self.filePaths["final_thesaurus"], mode="w", encoding="utf-8") as fw:
-                fw.write(json.dumps(self.final_thesaurus))
+                fw.write(json.dumps(self.origin_thesaurus))
         else:
             logger.warning(self.filePaths["final_thesaurus"] + "already exists, program will read it")
             with codecs.open(self.filePaths["final_thesaurus"], mode="r", encoding="utf-8") as fr:
-                self.final_thesaurus = json.loads(fr.read())
+                self.origin_thesaurus = json.loads(fr.read())
 
     def extract(self):
         """
@@ -321,12 +298,8 @@ class DomainThesaurus(object):
         logger.info("finish get semantic related words")
         # classify words
         logger.info("classify semantic related words")
-        self.__classifyWords()
+        self.__discriminateWords()
         logger.info("finish classify semantic related words")
-        # group synonyms and get final thesaurus
-        logger.info("group synonyms and get final thesaurus")
-        self.__groupSynonyms()
-        logger.info("finish group synonyms and get final thesaurus")
         return self.final_thesaurus
 
 

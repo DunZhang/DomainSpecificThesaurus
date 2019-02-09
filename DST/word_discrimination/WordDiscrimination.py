@@ -169,7 +169,7 @@ def get_default_synonym_types():
     return ["abbreviation", "other", "synonym"]
 
 
-class WordClassification(object):
+class WordDiscrimination(object):
     def __init__(self, classify_word_func, semantic_related_types,group_dict=False,group_word_type="synonym",
                  domain_vocab=None):
 
