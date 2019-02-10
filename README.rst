@@ -4,7 +4,7 @@ DomainThesaurus
 Introduction
 ------------
 
-**DomainThesaurus** is a python package offering a techniques of extracting domain-specific
+**DomainThesaurus** is a python package offering a technique of extracting domain-specific
 thesaurus which is commonly used in *Natural Language Processing*. Here is one item of generated
 thesaurus::
 
@@ -14,8 +14,8 @@ thesaurus::
     "other":["firefox","chrome","opera"]}
     }
 
-Except for domain-specific thesaurus, the package also provides several useful modules,
-for example, **DomainTerm** for extracting domain-specific term and **WordDiscrimination**
+Except for domain-specific thesaurus, the package also provides several useful modules.
+For example, **DomainTerm** for extracting domain-specific term and **WordDiscrimination**
 for discriminate words (e.g. abbreviation, synonyms).
 
 Domain-Specific term
@@ -29,8 +29,8 @@ Abbreviations and Synonyms
 :::::::::::::::::::::::::::
 
 The module **WordDiscrimination** can divide semantic-related words into different types.
-The default module can recognize semantic related words as `abbreviation` and `synonym`. Note that,
-in our module, the `synonym` means that two words are semantic related word and they are morphological similar.
+The default module can recognize semantic-related words as `abbreviation` and `synonym`. Note that,
+in our module, the `synonym` means that two words are semantic-related word and they are morphologically similar.
 For example, *ie* is the abbreviation of *internet explorer* and *javascripts* is
 the synonym of *javascript*.
 
@@ -69,9 +69,9 @@ A simple example::
 If you don't have any datasets, you can copy and run this code:
 https://github.com/DunZhang/DomainSpecificThesaurus/blob/master/docs/notebooks/domain_thesaurus.ipynb .
 This code will automatically download datasets for you.
-The code design is flexible, you can replace the default `function class` with your own `function class` to get a better
+The code design is flexible, you can replace the default `function class` with your own `function class` to get better
 performance.
-You can can find more usages in https://github.com/DunZhang/DomainSpecificThesaurus/blob/master/docs/notebooks
+You can find more usage in https://github.com/DunZhang/DomainSpecificThesaurus/blob/master/docs/notebooks
 
 Acknowledgements
 -----------------
