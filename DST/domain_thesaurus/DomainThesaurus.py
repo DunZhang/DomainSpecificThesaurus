@@ -20,7 +20,6 @@ logger = logging.getLogger(__name__)
 logging.getLogger("gensim").setLevel(logging.WARNING)
 logging.getLogger("summarizer").setLevel(logging.WARNING)
 
-
 from DST.phrase_detection.PhraseDetection import PhraseDetection
 from DST.domain_term.DomainTerm import DomainTerm
 from DST.semantic_related_word.SemanticRelatedWord import SemanticRelatedWord
@@ -155,6 +154,8 @@ class DomainThesaurus(object):
             self.SemanticRelatedWords = SemanticRelatedWord(self.filePaths["domain_corpus_phrase"],
                                                             self.filePaths["fasttext"], self.filePaths["skipgram"],
                                                             file_overwrite=False, topn_fasttext=3, topn_skipgram=5,
+                                                            similarity_threshold_fasttext=0.8,
+                                                            similarity_threshold_skipgram=0.78,
                                                             min_count=20, size=200, workers=8, window=5
                                                             )
         else:
@@ -162,7 +163,8 @@ class DomainThesaurus(object):
         if word_discrimination == "default":
             self.word_discrimination = WordDiscrimination(classify_word_func=default_classify_func,
                                                           semantic_related_types=["synonym", "abbreviation", "other"],
-                                                          group_dict=True,group_word_type="synonym",domain_vocab=self.domain_vocab)
+                                                          group_dict=True, group_word_type="synonym",
+                                                          domain_vocab=self.domain_vocab)
         else:
             self.word_discrimination = word_discrimination
 
@@ -261,7 +263,7 @@ class DomainThesaurus(object):
 
     def __discriminateWords(self):
         if not os.path.exists(self.filePaths["final_thesaurus"]):
-            if isinstance(self.word_discrimination,WordDiscrimination):
+            if isinstance(self.word_discrimination, WordDiscrimination):
                 if self.word_discrimination.group_dict:
                     self.word_discrimination.domain_vocab = self.domain_vocab
             self.origin_thesaurus = self.word_discrimination.discriminate_words(vocab=self.semantic_related_words)
@@ -304,7 +306,7 @@ class DomainThesaurus(object):
         logger.info("discriminate semantic related words...")
         self.__discriminateWords()
         logger.info("finish discriminate semantic related words")
-        logger.info("already get domain-specific thesaurus, it is saved in "+self.filePaths["final_thesaurus"])
+        logger.info("already get domain-specific thesaurus, it is saved in " + self.filePaths["final_thesaurus"])
         return self.final_thesaurus
 
 

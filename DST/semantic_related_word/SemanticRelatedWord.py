@@ -16,7 +16,8 @@ class SemanticRelatedWord(object):
     """
 
     def __init__(self, domain_corpus_phrase_path, fasttext_path, skipgram_path, file_overwrite=False,
-                 topn_fasttext=8, topn_skipgram=15, min_count=5, size=200, workers=8, window=5
+                 topn_fasttext=8, topn_skipgram=15, similarity_threshold_fasttext=0.8,
+                 similarity_threshold_skipgram=0.78, min_count=5, size=200, workers=8, window=5
                  ):
         """
         :param domain_corpus_phrase_path: str, path of domain corpus
@@ -44,6 +45,8 @@ class SemanticRelatedWord(object):
         self.size = size
         self.workers = workers
         self.window = window
+        self.similarity_threshold_fasttext = similarity_threshold_fasttext
+        self.similarity_threshold_skipgram = similarity_threshold_skipgram
 
     def getSemanticRelatedWords(self, terms):
         """
@@ -81,6 +84,16 @@ class SemanticRelatedWord(object):
         # get semantic related words
         res = {}
         for term in terms:
-            res[term] = list(set([i[0] for i in self.fasttext.wv.most_similar(term, topn=self.topn_fasttext)] + \
-                                 [i[0] for i in self.skipgram.wv.most_similar(term, topn=self.topn_skipgram)]))
+            words_fasttext = self.fasttext.wv.most_similar(term, topn=self.topn_fasttext)
+            words_skipgram = self.skipgram.wv.most_similar(term, topn=self.topn_skipgram)
+            words1, words2 = [], []
+            for i in words_fasttext:
+                if i[1] < self.similarity_threshold_fasttext:
+                    break
+                words1.append(i[0])
+            for i in words_skipgram:
+                if i[1] < self.similarity_threshold_skipgram:
+                    break
+                words2.append(i[0])
+            res[term] = list(set(words1 + words2))
         return res

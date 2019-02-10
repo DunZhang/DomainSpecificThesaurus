@@ -14,21 +14,23 @@ thesaurus::
     "other":["firefox","chrome","opera"]}
     }
 
-Except for domain-specific thesaurus, the package also provide several useful modules,
+Except for domain-specific thesaurus, the package also provides several useful modules,
 for example, **DomainTerm** for extracting domain-specific term and **WordDiscrimination**
-for classifying words (e.g. abbreviation, synonyms).
+for discriminate words (e.g. abbreviation, synonyms).
 
 Domain-Specific term
 ::::::::::::::::::::::::::::::
 
 **DomainTerm** can automatically extract domain-specific terms from domain corpus.
-For example, *Javascript* in computer science and technology and *karush kuhn tucker* in
-mathematics.
+For example, *Javascript* in the domain of  computer science and technology and *karush kuhn tucker* in
+domain of mathematics.
 
 Abbreviations and Synonyms
 :::::::::::::::::::::::::::
 
 The module **WordDiscrimination** can divide semantic-related words into different types.
+The default module can recognize semantic related words as `abbreviation` and `synonym`. Note that,
+in our module, the `synonym` means that two words are semantic related word and they are morphological similar.
 For example, *ie* is the abbreviation of *internet explorer* and *javascripts* is
 the synonym of *javascript*.
 
@@ -64,6 +66,7 @@ A simple example::
     >>> # extract domain thesauruss
     >>> dst.extract()
 
+If you don't have any datasets, you can run this code:
 The code design is flexible, you can replace the default `function class` with your own `function class` to get a better
 performance.
 You can can find more usages in https://github.com/DunZhang/DomainSpecificThesaurus/blob/master/docs/notebooks

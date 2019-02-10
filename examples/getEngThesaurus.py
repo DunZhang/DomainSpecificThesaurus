@@ -28,5 +28,4 @@ if __name__ == "__main__":
     dst = DomainThesaurus(domain_specific_corpus_path=os.path.join(DEFAULT_OUT_DIR, "cleanEng.txt"),
                           general_corpus_path="",
                           outputDir=DEFAULT_OUT_DIR)
-    print(dst.filePaths)
     eng_domain_thesaurus = dst.extract()
