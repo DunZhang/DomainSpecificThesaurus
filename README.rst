@@ -66,7 +66,9 @@ A simple example::
     >>> # extract domain thesauruss
     >>> dst.extract()
 
-If you don't have any datasets, you can run this code:
+If you don't have any datasets, you can copy and run this code:
+https://github.com/DunZhang/DomainSpecificThesaurus/blob/master/docs/notebooks/domain_thesaurus.ipynb .
+This code will automatically download datasets for you.
 The code design is flexible, you can replace the default `function class` with your own `function class` to get a better
 performance.
 You can can find more usages in https://github.com/DunZhang/DomainSpecificThesaurus/blob/master/docs/notebooks
