@@ -5,7 +5,9 @@ from sys import stdout
 from os import makedirs
 from os.path import dirname
 from os.path import exists
+import logging
 
+logger = logging.getLogger(__name__)
 
 class GoogleDriveDownloader:
     """
@@ -46,7 +48,7 @@ class GoogleDriveDownloader:
 
             session = requests.Session()
 
-            print('Downloading {} into {}... '.format(file_id, dest_path), end='')
+            logger.info('Downloading {} into {}... '.format(file_id, dest_path))
             stdout.flush()
 
             response = session.get(GoogleDriveDownloader.DOWNLOAD_URL, params={'id': file_id}, stream=True)
@@ -57,15 +59,15 @@ class GoogleDriveDownloader:
                 response = session.get(GoogleDriveDownloader.DOWNLOAD_URL, params=params, stream=True)
 
             GoogleDriveDownloader._save_response_content(response, dest_path)
-            print('Done.')
+            logger.info('Finish download')
 
             if unzip:
                 try:
-                    print('Unzipping...', end='')
+                    logger.info('Unzipping...')
                     stdout.flush()
                     with zipfile.ZipFile(dest_path, 'r') as z:
                         z.extractall(destination_directory)
-                    print('Done.')
+                        logger.info('Finish unzip.')
                 except zipfile.BadZipfile:
                     warnings.warn('Ignoring `unzip` since "{}" does not look like a valid zip file'.format(file_id))
 
@@ -98,5 +100,4 @@ class DownloadData():
 
 
 if __name__ == "__main__":
-    data = DownloadData()
-    data.download_data(dest_path="E://cezd//comments.zip", download_file_name="test", overwrite=True)
+    pass
