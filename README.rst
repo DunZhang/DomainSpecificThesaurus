@@ -61,10 +61,10 @@ Usage
 
 A simple example::
     >>> dst = DomainThesaurus(domain_specific_corpus_path="your domain specific corpus path",
-    >>>                       general_corpus_path="your general corpus path",
+    >>>                       general_vocab_path="your general vocab path",
     >>>                       outputDir="path of output")
     >>> # extract domain thesauruss
-    >>> dst.extract()
+    >>> your_thesaurus = dst.extract()
 
 If you don't have any datasets, you can copy and run this code:
 https://github.com/DunZhang/DomainSpecificThesaurus/blob/master/docs/notebooks/domain_thesaurus.ipynb .

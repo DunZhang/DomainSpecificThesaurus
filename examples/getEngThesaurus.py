@@ -24,6 +24,6 @@ if __name__ == "__main__":
     # start to extract domain thesaurus
     # for different datasets,  you should set different parameters
     dst = DomainThesaurus(domain_specific_corpus_path=os.path.join(DEFAULT_OUT_DIR, "cleanEng.txt"),
-                          general_corpus_path="",
+                          general_vocab_path="",
                           outputDir=DEFAULT_OUT_DIR)
     eng_domain_thesaurus = dst.extract()

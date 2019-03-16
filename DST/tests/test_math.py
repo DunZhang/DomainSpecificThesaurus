@@ -11,7 +11,7 @@ if __name__ == "__main__":
     #
     print(123)
     # dst = DST(domain_specific_corpus_path="E:/testMath/clean_math.txt",
-    #           general_corpus_path="",
+    #           general_vocab_path="",
     #           outputDir="E:/testMath",
     #           filePaths=None,
     #           phrase_detection_domain="default",

@@ -34,19 +34,18 @@ class DomainThesaurus(object):
 
     def __init__(self,
                  domain_specific_corpus_path,
-                 general_corpus_path,
+                 general_vocab_path,
                  outputDir,
                  filePaths=None,
                  phrase_detection_domain="default",
-                 phrase_detection_general="default",
                  domain_specific_term="default",
                  semantic_related_words="default",
                  word_discrimination="default"):
         """
-        :param domain_specific_corpus_path: str, the path of domain specific corpus path, should be a text file with one line
+        :param domain_specific_corpus_path: str, the path of domain specific corpus, should be a text file with one line
                  one sentence.
-        :param general_corpus_path: str, the path of general corpus path, should be a text file with one line
-                 one sentence.
+        :param general_vocab_path: str, the path of general vocabulary, should be a json file. Key refer to word and
+                value is the count of word.
         :param outputDir: str, the directory of output, the final thesaurus and temporary files  are in the directory
 
         :param filePaths: dict, optional, specify every path of temporary files. If this parameter is None, filePaths will be generated
@@ -103,7 +102,7 @@ class DomainThesaurus(object):
         """
 
         self.domain_specific_corpus_path = domain_specific_corpus_path
-        self.general_corpus_path = general_corpus_path
+        self.general_vocab_path = general_vocab_path
         self.outputDir = outputDir
         self.filePaths = filePaths
         self.domain_vocab, self.general_vocab = None, None
@@ -111,6 +110,15 @@ class DomainThesaurus(object):
         self.semantic_related_words = None
         self.origin_thesaurus = None
         self.final_thesaurus = None
+        if not os.path.exists(domain_specific_corpus_path):
+            logger.error(domain_specific_corpus_path+" does not exists")
+            exit(1)
+        if not os.path.exists(general_vocab_path):
+            logger.error(general_vocab_path+" does not exists")
+            exit(1)
+        if not os.path.exists(outputDir):
+            logger.error(outputDir+" does not exists")
+            exit(1)
         self.__getFilePaths()  # get all file paths
         # some models in DST
         if phrase_detection_domain == "default":
@@ -128,22 +136,6 @@ class DomainThesaurus(object):
                                                          wordNumInPhrase=wordNumInPhrase)
         else:
             self.PhraseDetectionDomain = phrase_detection_domain
-
-        if phrase_detection_general == "default":
-            wordNumInPhrase = 3
-            savePhraserPaths = []
-            phrasesDir = os.path.join(self.outputDir, "Phrases")
-            if not os.path.exists(phrasesDir):
-                os.makedirs(phrasesDir)
-            for i in range(wordNumInPhrase - 1):
-                savePhraserPaths.append(
-                    os.path.join(self.outputDir, "Phrases/" + str(i + 2) + "_general_phrase.model"))
-            self.PhraseDetectionGeneral = PhraseDetection(savePhraserPaths=savePhraserPaths, file_overwrite=False,
-                                                          min_count=15, threshold=20.0, max_vocab_size=40000000,
-                                                          delimiter=b'_', scoring='default',
-                                                          wordNumInPhrase=wordNumInPhrase)
-        else:
-            self.PhraseDetectionGeneral = phrase_detection_general
 
         if domain_specific_term == "default":
             self.DomainTerm = DomainTerm(maxTermsCount=2000, thresholdScore=15.0,
@@ -188,9 +180,7 @@ class DomainThesaurus(object):
         if self.filePaths is None:  # use default setting
             self.filePaths = {}
             self.filePaths["domain_corpus_phrase"] = os.path.join(self.outputDir, "domain_corpus_phrase.txt")
-            self.filePaths["general_corpus_phrase"] = os.path.join(self.outputDir, "general_corpus_phrase.txt")
             self.filePaths["domain_vocab"] = os.path.join(self.outputDir, "domain_vocab.json")
-            self.filePaths["general_vocab"] = os.path.join(self.outputDir, "general_vocab.json")
             self.filePaths["domain_terms"] = os.path.join(self.outputDir, "domain_terms.txt")
             self.filePaths["fasttext"] = os.path.join(self.outputDir, "fasttext/fasttext.model")
             self.filePaths["skipgram"] = os.path.join(self.outputDir, "skipgram/skipgram.model")
@@ -205,13 +195,6 @@ class DomainThesaurus(object):
                                                  savePath=self.filePaths["domain_corpus_phrase"])
         else:
             logger.warning(self.filePaths["domain_corpus_phrase"] + "already exist, program will not detect phrase.")
-        if not os.path.exists(self.filePaths["general_corpus_phrase"]):
-            logger.info("detect phrase for general corpus...")
-            self.PhraseDetectionGeneral.fit(sentencesPath=self.general_corpus_path)
-            self.PhraseDetectionGeneral.transform(sentencesPath=self.general_corpus_path,
-                                                  savePath=self.filePaths["general_corpus_phrase"])
-        else:
-            logger.warning(self.filePaths["general_corpus_phrase"] + "already exist, program will not detect phrase.")
 
     def __corpusVocab(self):
         if not os.path.exists(self.filePaths["domain_vocab"]):
@@ -225,17 +208,9 @@ class DomainThesaurus(object):
             logger.warning(self.filePaths["domain_vocab"] + " already exists, program will read it")
             with codecs.open(self.filePaths["domain_vocab"], mode="r", encoding="utf-8") as fr:
                 self.domain_vocab = json.loads(fr.read())
-        if not os.path.exists(self.filePaths["general_vocab"]):
-            logger.info("get vocabulary from general corpus......")
-            with codecs.open(self.filePaths["general_corpus_phrase"], mode="r", encoding="utf-8") as fr:
-                self.general_vocab = corpusToVocab(fr)
-                logger.info("save general vocabulary to local......")
-                with codecs.open(self.filePaths["general_vocab"], mode="w", encoding="utf-8") as fw:
-                    fw.write(json.dumps(self.general_vocab))
-        else:
-            logger.warning(self.filePaths["general_vocab"] + " already exists, program will read it")
-            with codecs.open(self.filePaths["general_vocab"], mode="r", encoding="utf-8") as fr:
-                self.general_vocab = json.loads(fr.read())
+        logger.info("loading general vocabulary from "+self.general_vocab_path+"......")
+        with codecs.open(self.general_vocab_path, mode="r", encoding="utf-8") as fr:
+            self.general_vocab = json.loads(fr.read())
 
     def __domainTerm(self):
         if not os.path.exists(self.filePaths["domain_terms"]):
@@ -266,7 +241,7 @@ class DomainThesaurus(object):
             if isinstance(self.word_discrimination, WordDiscrimination):
                 if self.word_discrimination.group_dict:
                     self.word_discrimination.domain_vocab = self.domain_vocab
-            self.origin_thesaurus = self.word_discrimination.discriminate_words(vocab=self.semantic_related_words)
+            self.final_thesaurus = self.word_discrimination.discriminate_words(vocab=self.semantic_related_words)
             # save origin_thesaurus
             logger.info("save thesaurus to local")
             with codecs.open(self.filePaths["final_thesaurus"], mode="w", encoding="utf-8") as fw:
@@ -274,7 +249,7 @@ class DomainThesaurus(object):
         else:
             logger.warning(self.filePaths["final_thesaurus"] + "already exists, program will read it")
             with codecs.open(self.filePaths["final_thesaurus"], mode="r", encoding="utf-8") as fr:
-                self.origin_thesaurus = json.loads(fr.read())
+                self.final_thesaurus = json.loads(fr.read())
 
     def extract(self):
         """
