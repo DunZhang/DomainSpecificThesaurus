@@ -41,4 +41,4 @@ def levenshtein_distance(s1, s2):
 def StrSimilarity(s1,s2):
     return levenshtein_distance(s1,s2)/max((len(s1),len(s2)))
 if __name__ =="__main__":
-    print(StrSimilarity("123","1d345"))
+    print(StrSimilarity("123","1234"))

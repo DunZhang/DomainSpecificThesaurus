@@ -84,8 +84,14 @@ class SemanticRelatedWord(object):
         # get semantic related words
         res = {}
         for term in terms:
-            words_fasttext = self.fasttext.wv.most_similar(term, topn=self.topn_fasttext)
-            words_skipgram = self.skipgram.wv.most_similar(term, topn=self.topn_skipgram)
+            try:
+                words_fasttext = self.fasttext.wv.most_similar(term, topn=self.topn_fasttext)
+            except:
+                words_fasttext = []
+            try:
+                words_skipgram = self.skipgram.wv.most_similar(term, topn=self.topn_skipgram)
+            except:
+                words_skipgram = []
             words1, words2 = [], []
             for i in words_fasttext:
                 if i[1] < self.similarity_threshold_fasttext:

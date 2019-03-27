@@ -217,6 +217,7 @@ class WordDiscrimination(object):
         """
         classifiy word
         :param vocab: dict, key:term, value: list, the semantic realted words of this term
+
         :return: dict, key:term, value:dict(key:synonym type, value: list, words of this synonym type )
         """
         res = {}
