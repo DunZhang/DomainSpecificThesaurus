@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 from gensim.models.phrases import Phrases, Phraser
 from gensim.models.word2vec import LineSentence
 
+
 class TxtIter(object):
     def __init__(self, sentences, ngrams):
         self.ngrams = ngrams
@@ -17,11 +18,19 @@ class TxtIter(object):
 
     def __iter__(self):
         if len(self.ngrams) == 0:
+            c = 0
             for line in self.sentences:
+                c += 1
+                if c % 10000 == 0:
+                    logger.info("already read {}w lines".format(str(c / 10000)))
                 yield line.split()
             self.sentences.close()
         else:
+            c = 0
             for line in self.sentences:
+                c += 1
+                if c % 10000 == 0:
+                    logger.info("already read {}w lines".format(str(c / 10000)))
                 line = self.ngrams[0][line.split()]
                 for gram in self.ngrams[1:]:
                     line = gram[line]
@@ -82,7 +91,7 @@ class PhraseDetection(object):
         # path detect
         for path in self.savePhraserPaths:
             if not os.path.exists(os.path.dirname(path)):
-                raise FileNotFoundError(os.path.dirname(path)+" not exist")
+                raise FileNotFoundError(os.path.dirname(path) + " not exist")
         for path in self.savePhraserPaths:
             if not os.path.exists(path):  # need train
                 self.phrasers = None
@@ -90,22 +99,20 @@ class PhraseDetection(object):
         if self.phrasers is not None and self.file_overwrite == False:
             logging.info("models are already exist, will read it")
             for path in self.savePhraserPaths:
-                self.phrasers.append(Phraser(Phrases.load(path)))
+                self.phrasers.append(Phraser.load(path))
             return True
         self.phrasers = []
         c = 2
         for path in self.savePhraserPaths:
             logging.info("getting %d-gram phrase......" % c)
             c += 1
-            phrase = Phrases(
+            phraser = Phraser(Phrases(
                 sentences=TxtIter(sentences=codecs.open(sentencesPath, mode="r", encoding="utf-8"),
                                   ngrams=self.phrasers),
                 min_count=self.min_count, threshold=self.threshold, max_vocab_size=self.max_vocab_size,
-                delimiter=self.delimiter, scoring=self.scoring)
-            phrase.save(path)
-            phraser = Phraser(phrase)
+                delimiter=self.delimiter, scoring=self.scoring))
+            phraser.save(path)
             self.phrasers.append(phraser)
-            del phrase
 
     def transform(self, sentencesPath, savePath):
         """

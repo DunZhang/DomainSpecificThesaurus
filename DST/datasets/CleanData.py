@@ -6,12 +6,175 @@ Language & Usage Stack Exchange and Wikipedia
 import codecs
 import re
 import logging
-
+import pymongo
+import regex
 logger = logging.getLogger(__name__)
 from lxml import etree
 from bs4 import BeautifulSoup
+def word_token(sent):
+    words = sent.split()
+    res = []
+    for word in words:
+        if word[0] in ["'"]:
+            word = word[1:]
+        if len(word)<1:
+            continue
+        if word[-2:] == "s'":
+            res.append(word[0:-1])
+            res.append("'s")
+        elif word[-2:] == "'s":
+            res.append(word[0:-2])
+            res.append("'s")
+        elif word[-1] in ["'"]:
+            res.append(word[0:-1])
+        else:
+            res.append(word)
+    return res
 
+class CleanDataWiki(object):
+    """
+    class to clean StackOver flow data
+    """
 
+    def __init__(self, wiki_paths, clean_data_path):
+        self.__reSub0 = re.compile("(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]")  # URL
+        self.__reSub1 = re.compile("[\[\]<>`~$\^&*\"=|%@(){}/\\\\]")  # replace with " "
+        self.__bracket = r"\((?:[^()]++|(?R))*+\)"
+        self.wiki_paths = wiki_paths
+        self.clean_data_path = clean_data_path
+
+    def __clean_data(self, strText):
+        sentences = []
+        strText = strText.lower()
+        strText = regex.subf(self.__bracket, "", strText)
+        strText = re.sub(self.__reSub0, " ", strText)
+        strText = re.sub(self.__reSub1, " ", strText)
+
+        for sentence in re.split("\.[^a-z0-9]|[,:?!;\n\r]", strText):
+            word_sen = word_token(sentence)
+            if (len(word_sen) > 2):
+                sentences.append(u" ".join(word_sen) + "\n")
+        return sentences
+
+    def transform(self, batch_size=100000):
+        data = []
+        fw = open(self.clean_data_path, "w", encoding="utf-8")
+        for path in self.wiki_paths:
+            print(path)
+            with open(path, "r", encoding="utf-8") as fr:
+                for line in fr:
+                    if line.startswith("<doc") or line.startswith("</doc>") or " " not in line:
+                        continue
+                    data.extend(self.__clean_data(line))
+                    if len(data) > batch_size:
+                        fw.writelines(data)
+                        data = []
+        fw.writelines(data)
+        fw.close()
+class CleanDataSO_BERT(object):
+    """
+    class to clean StackOver flow data
+    """
+
+    def __init__(self, so_xml_path, clean_data_path, connStr):
+        """
+        :param so_xml_path: the path of StackOver flow data, the data is big and
+                can be downloaded from https://archive.org/download/stackexchange
+        :param clean_data_path: save clean data to text file ( one line one sentence).
+        """
+        usage_scenario = "embedding"
+        self.connStr = connStr
+        self.usage_scenario = usage_scenario
+        if usage_scenario == "embedding":
+            self.__reSub0 = re.compile("(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]")  # URL
+            self.__reSub1 = re.compile("[\[\]<>`~$\^&*\"=|%@(){},:/\\\\]")  # replace with " "
+            self.__resplit = re.compile("\.[^a-z0-9]|[?!;\n\r]")
+            self.__rePlus = re.compile("[^+]\+[^+]")
+            self.__minNum = 4
+
+        elif usage_scenario == "phrase":
+            self.__reSub0 = re.compile("(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]")  # URL
+            self.__reSub1 = re.compile("[\[\]<>`~$\^&*\"=|%@(){}/\\\\]")  # replace with " "
+            self.__resplit = re.compile("\.[^a-z0-9]|[,:?!;\n\r]")
+            self.__rePlus = re.compile("[^+]\+[^+]")
+            self.__minNum = 2
+            self.__bracket = r"\((?:[^()]++|(?R))*+\)"
+
+        self.so_xml_path = so_xml_path
+        self.clean_data_path = clean_data_path
+
+    def __clean_data(self, strText):
+        sentences = []
+        strText = strText.lower()
+        if self.usage_scenario == "phrase":
+            strText = regex.subf(self.__bracket, "", strText)
+        strText = re.sub(self.__reSub0, " ", strText)
+        strText = re.sub(self.__reSub1, " ", strText)
+
+        for sub in set(re.findall(self.__rePlus, strText)):
+            strText = strText.replace(sub, sub[0] + " " + sub[2])
+        for sentence in re.split(self.__resplit, strText):
+            word_sen = word_token(sentence)
+            if (len(word_sen) > self.__minNum):
+                sentences.append(u" ".join(word_sen) + "\n")
+        return sentences
+
+    def toMongoDb(self):
+        """
+        clean data
+        """
+        logger.info("clean stack overflow data")
+        context = etree.iterparse(self.so_xml_path, encoding="utf-8")
+        #        fw = codecs.open(self.clean_data_path, mode="w", encoding="utf-8")
+
+        myclient = pymongo.MongoClient(self.connStr)
+        mydb = myclient["SODB"]
+        mycollection = mydb.create_collection("texts")
+
+        c = 0
+        for _, elem in context:  # 迭代每一个
+            clean_data = []
+            c += 1
+            if (c % 100000 == 0):
+                logger.info("already clean record:" + str(c / 10000) + "W")
+            Id, title, body, typeId, pId = elem.get("Id"), elem.get("Title"), elem.get("Body"), elem.get(
+                "PostTypeId"), elem.get("ParentId")
+            elem.clear()
+            if typeId is None or (int(typeId) != 1 and int(typeId) != 2):
+                continue
+            if body is not None:
+                soup = BeautifulSoup(body, "lxml")
+                for pre in soup.find_all("pre"):
+                    if (len(pre.find_all("code")) > 0):
+                        pre.decompose()
+                clean_data.extend(self.__clean_data(soup.get_text()))
+            if title is not None:
+                clean_data.extend(self.__clean_data(BeautifulSoup(title, "lxml").get_text()))
+            if len(clean_data) == 0:
+                continue
+
+            if int(typeId) == 1:
+                # 直接插入到MongoDB中
+                mycollection.insert_one({"Id": int(Id), "data": clean_data})
+            elif pId is not None:
+                res = mycollection.find_one({"Id": int(pId)})
+                if res is not None:
+                    # updatae
+                    res["data"].extend(clean_data)
+                    mycollection.replace_one({"Id": int(pId)}, res)
+                else:
+                    mycollection.insert_one({"Id": int(pId), "data": clean_data})
+        myclient.close()
+
+    def toBertText(self):
+        fw = codecs.open(self.clean_data_path, mode="w", encoding="utf-8")
+        myclient = pymongo.MongoClient(self.connStr)
+        mc = myclient["SODB"]["texts"]
+        for i in mc.find():
+            fw.writelines(i["data"])
+            fw.write("\n")
+        fw.close()
+        myclient.close()
 class CleanDataSO(object):
     """
     class to clean StackOver flow data
