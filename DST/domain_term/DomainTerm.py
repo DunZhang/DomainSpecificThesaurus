@@ -5,23 +5,29 @@ for examples, 'JavaScript' in CS and 'limit' in math
 import logging
 
 logger = logging.getLogger(__name__)
-from DST.utils.TermUtil import filterTerm
+
 
 class DomainTerm(object):
     """
     class to extract domain-specific terms
     """
 
-    def __init__(self, maxTermsCount=300000, thresholdScore=10.0, termFreqRange=(30, float("inf"))):
+    def __init__(self, maxTermsCount=300000,
+                 thresholdScore=10.0,
+                 freqRangeDomainVocab=(30, float("inf")),
+                 freqRangeGeneralVocab=(30, float("inf")),
+                 filterTermFunc=None):
         """
         :param maxTermsCount: the max number of domain terms
         :param thresholdScore: word larger than thresholdScore will be recognized as domain term
-        :param termFreqRange: tuple-like object(minFreq,maxFreq), if word is not in the range, it will be not considered
+        :param freqRangeDomainVocab: tuple-like object(minFreq,maxFreq), if word is not in the range, it will be not considered
                 as term
         """
         self.maxTermsCount = maxTermsCount
         self.thresholdScore = thresholdScore
-        self.termFreqRange = termFreqRange
+        self.freqRangeDomainVocab = freqRangeDomainVocab
+        self.freqRangeGeneralVocab = freqRangeGeneralVocab
+        self.filterTermFunc = filterTermFunc
 
     def extract_term(self, domainSpecificVocab, generalVocab):
         """
@@ -39,7 +45,12 @@ class DomainTerm(object):
         # extract domain specific terms
         candidateTerms = []
         for word, freq in domainSpecificVocab.items():
-            if freq < self.termFreqRange[0] or freq > self.termFreqRange[1] or not filterTerm(word):
+            if freq < self.freqRangeDomainVocab[0] or freq > self.freqRangeDomainVocab[1]:
+                continue
+            if word in generalVocab and not (
+                    self.freqRangeGeneralVocab[0] < generalVocab[word] < self.freqRangeGeneralVocab[1]):
+                continue
+            if self.filterTermFunc is not None and  not self.filterTermFunc(word):
                 continue
             if word not in generalVocab:
                 candidateTerms.append((word, float("inf")))

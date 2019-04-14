@@ -139,7 +139,9 @@ class DomainThesaurus(object):
 
         if domain_specific_term == "default":
             self.DomainTerm = DomainTerm(maxTermsCount=2000, thresholdScore=15.0,
-                                         termFreqRange=(100, float("inf")))
+                                         freqRangeDomainVocab=(100, float("inf")),
+                                         freqRangeGeneralVocab=(-2,float("inf")),
+                                         filterTermFunc=None)
         else:
             self.DomainTerm = domain_specific_term
         if semantic_related_words == "default":
