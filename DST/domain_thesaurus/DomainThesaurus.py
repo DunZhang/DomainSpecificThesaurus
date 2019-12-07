@@ -111,13 +111,13 @@ class DomainThesaurus(object):
         self.origin_thesaurus = None
         self.final_thesaurus = None
         if not os.path.exists(domain_specific_corpus_path):
-            logger.error(domain_specific_corpus_path+" does not exists")
+            logger.error(domain_specific_corpus_path + " does not exists")
             exit(1)
         if not os.path.exists(general_vocab_path):
-            logger.error(general_vocab_path+" does not exists")
+            logger.error(general_vocab_path + " does not exists")
             exit(1)
         if not os.path.exists(outputDir):
-            logger.error(outputDir+" does not exists")
+            logger.error(outputDir + " does not exists")
             exit(1)
         self.__getFilePaths()  # get all file paths
         # some models in DST
@@ -140,7 +140,7 @@ class DomainThesaurus(object):
         if domain_specific_term == "default":
             self.DomainTerm = DomainTerm(maxTermsCount=2000, thresholdScore=15.0,
                                          freqRangeDomainVocab=(100, float("inf")),
-                                         freqRangeGeneralVocab=(-2,float("inf")),
+                                         freqRangeGeneralVocab=(-2, float("inf")),
                                          filterTermFunc=None)
         else:
             self.DomainTerm = domain_specific_term
@@ -210,7 +210,7 @@ class DomainThesaurus(object):
             logger.warning(self.filePaths["domain_vocab"] + " already exists, program will read it")
             with codecs.open(self.filePaths["domain_vocab"], mode="r", encoding="utf-8") as fr:
                 self.domain_vocab = json.loads(fr.read())
-        logger.info("loading general vocabulary from "+self.general_vocab_path+"......")
+        logger.info("loading general vocabulary from " + self.general_vocab_path + "......")
         with codecs.open(self.general_vocab_path, mode="r", encoding="utf-8") as fr:
             self.general_vocab = json.loads(fr.read())
 
@@ -247,7 +247,7 @@ class DomainThesaurus(object):
             # save origin_thesaurus
             logger.info("save thesaurus to local")
             with codecs.open(self.filePaths["final_thesaurus"], mode="w", encoding="utf-8") as fw:
-                fw.write(json.dumps(self.origin_thesaurus))
+                fw.write(json.dumps(self.final_thesaurus))
         else:
             logger.warning(self.filePaths["final_thesaurus"] + "already exists, program will read it")
             with codecs.open(self.filePaths["final_thesaurus"], mode="r", encoding="utf-8") as fr:
