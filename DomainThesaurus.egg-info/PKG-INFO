@@ -1,0 +1,106 @@
+Metadata-Version: 1.2
+Name: DomainThesaurus
+Version: 1.2.1
+Summary: extract domain thesaurus automatically
+Home-page: https://github.com/DunZhang/DomainSpecificThesaurus
+Author: ZhangDun, ChenXiang, Chunyang Chen
+Author-email: dunnzhang0@gmail.com, xchencs@ntu.edu.cn, chunyang.chen@monash.edu
+Maintainer: ZhangDun
+Maintainer-email: dunnzhang0@gmail.com
+License: MIT
+Description: DomainThesaurus
+        ================
+        
+        Introduction
+        ------------
+        
+        **DomainThesaurus** is a python package offering a technique of extracting domain-specific
+        thesaurus which is commonly used in *Natural Language Processing*. Here is one item of generated
+        thesaurus::
+        
+            { "internet explorer":
+            {"abbreviation":["ie"],
+            "synonym":["internet explorers", "internet explorere", "internetexplorer"],
+            "other":["firefox","chrome","opera"]}
+            }
+        
+        Except for domain-specific thesaurus, the package also provides several useful modules.
+        For example, **DomainTerm** for extracting domain-specific term and **WordDiscrimination**
+        for discriminate words (e.g. abbreviation, synonyms).
+        Details of the implemented approaches can be found in our publication:
+        `SEthesaurus: WordNet in Software Engineering
+        <https://ieeexplore.ieee.org/document/8827962>`_. (TSE 2019)
+        
+        
+        Domain-Specific term
+        ::::::::::::::::::::::::::::::
+        
+        **DomainTerm** can automatically extract domain-specific terms from domain corpus.
+        For example, *Javascript* in the domain of  computer science and technology and *karush kuhn tucker* in
+        domain of mathematics.
+        
+        Abbreviations and Synonyms
+        :::::::::::::::::::::::::::
+        
+        The module **WordDiscrimination** can divide semantic-related words into different types.
+        The default module can recognize semantic-related words as `abbreviation` and `synonym`. Note that,
+        in our module, the `synonym` means that two words are semantic-related word and they are morphologically similar.
+        For example, *ie* is the abbreviation of *internet explorer* and *javascripts* is
+        the synonym of *javascript*.
+        
+        Installation
+        ------------
+        
+        **DomainThesaurus** is tested to work under `Python 3.x`. Please use it in `Python 3.x`.
+        We will try to support *Python 2.x*.
+        
+        Dependency requirements:
+        
+        * gensim(>=3.6.0)
+        * networkx(>=2.1)
+        
+        **DomainThesaurus** is currently available on the PyPi's repository and you can
+        install it via `pip`::
+        
+          pip install DomainThesaurus
+        
+        If you prefer, you can clone it and run the setup.py file. Use the following
+        command to get a copy from GitHub::
+        
+         git clone https://github.com/DunZhang/DomainSpecificThesaurus.git
+        
+        
+        Usage
+        ----------
+        
+        A simple example::
+            >>> dst = DomainThesaurus(domain_specific_corpus_path="your domain specific corpus path",
+            >>>                       general_vocab_path="your general vocab path",
+            >>>                       outputDir="path of output")
+            >>> # extract domain thesauruss
+            >>> your_thesaurus = dst.extract()
+        
+        If you don't have any datasets, you can copy and run this code:
+        https://github.com/DunZhang/DomainSpecificThesaurus/blob/master/docs/notebooks/domain_thesaurus.ipynb .
+        This code will automatically download datasets for you.
+        The code design is flexible, you can replace the default `function class` with your own `function class` to get better
+        performance.
+        You can find more usage in https://github.com/DunZhang/DomainSpecificThesaurus/blob/master/docs/notebooks
+        
+        Acknowledgements
+        -----------------
+        
+        In this project, we use `Levenshtein Distance` and `GoogleDriveDownloader` from https://pypi.org/project/jellyfish/
+        and  https://github.com/ndrplz/google-drive-downloader. Thanks for their code.
+        
+Platform: UNKNOWN
+Classifier: Development Status :: 2 - Pre-Alpha
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX
+Classifier: Operating System :: Unix
+Classifier: Operating System :: MacOS
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence

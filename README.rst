@@ -17,6 +17,10 @@ thesaurus::
 Except for domain-specific thesaurus, the package also provides several useful modules.
 For example, **DomainTerm** for extracting domain-specific term and **WordDiscrimination**
 for discriminate words (e.g. abbreviation, synonyms).
+Details of the implemented approaches can be found in our publication:
+`SEthesaurus: WordNet in Software Engineering
+<https://ieeexplore.ieee.org/document/8827962>`_. (TSE 2019)
+
 
 Domain-Specific term
 ::::::::::::::::::::::::::::::
