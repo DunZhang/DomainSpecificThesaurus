@@ -19,7 +19,7 @@ For example, **DomainTerm** for extracting domain-specific term and **WordDiscri
 for discriminate words (e.g. abbreviation, synonyms).
 Details of the implemented approaches can be found in our publication:
 `SEthesaurus: WordNet in Software Engineering
-<https://ieeexplore.ieee.org/document/8827962>`_. (TSE 2019)
+<https://ieeexplore.ieee.org/document/8827962>`_. (Transactions on Software Engineering 2019)
 
 
 Domain-Specific term
