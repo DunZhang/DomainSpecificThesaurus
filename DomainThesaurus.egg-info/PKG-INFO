@@ -1,6 +1,6 @@
 Metadata-Version: 1.2
 Name: DomainThesaurus
-Version: 1.2.1
+Version: 1.2.2
 Summary: extract domain thesaurus automatically
 Home-page: https://github.com/DunZhang/DomainSpecificThesaurus
 Author: ZhangDun, ChenXiang, Chunyang Chen
@@ -29,7 +29,7 @@ Description: DomainThesaurus
         for discriminate words (e.g. abbreviation, synonyms).
         Details of the implemented approaches can be found in our publication:
         `SEthesaurus: WordNet in Software Engineering
-        <https://ieeexplore.ieee.org/document/8827962>`_. (TSE 2019)
+        <https://ieeexplore.ieee.org/document/8827962>`_. (Transactions on Software Engineering 2019)
         
         
         Domain-Specific term
